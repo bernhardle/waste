@@ -1,0 +1,26 @@
+Anhänge runterladen:
+
+https://iptrack.sharepoint.com/sites/RESTAPI/_api/Web/Lists(guid'5cd75f66-486f-49fa-8176-b3e74fc8a10d')/items?$select=Id,Attachments,AttachmentFiles&$expand=AttachmentFiles&$top=1000000&$filter=Attachments%20ne%20%27true%27
+
+https://iptrack.sharepoint.com/sites/RESTAPI/_api/Web/Lists(guid'5cd75f66-486f-49fa-8176-b3e74fc8a10d')/items(1267)/AttachmentFiles('25120_FINAL.jpg')
+
+https://iptrack.sharepoint.com//sites/RESTAPI/Lists/ProductObligations/Attachments/1267/25120_FINAL.jpg
+
+Hochladen:
+
+var content = "Hello, this text is inside the file created with REST API";
+var digest = $("#__REQUESTDIGEST").val();
+var composedUrl = "/_api/web/lists/GetByTitle('List1')/items(1)/AttachmentFiles/add(FileName='readme.txt')";
+$.ajax({
+    url: composedUrl,
+    type: "POST",
+    data: content,
+    headers: {        
+        "X-RequestDigest": digest
+    }
+})
+
+Löschen:
+
+URL: /sites/<site>/Lists/ProductObligations/Attachments/<file>
+type: "DELETE"

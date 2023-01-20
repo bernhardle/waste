@@ -1,0 +1,11 @@
+Product Duties:
+=============
+AltovaXML.exe /xslt1 .\XSLT\SAP-DR-Product-Duties.xslt /in ..\data\products.xml /param "SAP-DR-Product-Duties.Batch='TVVV'" /param "SAP-DR-Product-Duties.DutyLoadFile='..\data\duties.xml'" /param "debug=true()" /param "verbose=true()"
+
+Forward Lookup:
+==============
+AltovaXML.exe /xslt1 ..\XSLT\SAP-DR-Product-Lookup.xslt /in ..\data\products.xml /param "SAP-DR-Product-Lookup.DutyLoadFile='..\data\duties.xml'" /param "SAP-DR-Product-Lookup.FieldsLoadFile='..\data\fields.xml'" /param "SAP-DR-Product-Lookup.ContentTypesLoadFile='..\data\types.xml'" /param "debug=true()" /param "verbose=true()" /param "SAP-DR-Product-Lookup.Material='*'" /param "SAP-DR-Product-Lookup.Duty='NN-VV-RECY-0'" /param "SAP-DR-Product-Lookup.Mode='forward'"
+
+Transfer:
+=======
+AltovaXML.exe /xslt1 $pwd\XSLT\SAP-DR-Product-Transfer.xslt /in $pwd\data\test.xml /param "SAP-DR-Product-Transfer.ProductLoadFile='..\data\products.xml'" /param "SAP-DR-Product-Transfer.ContentTypesLoadFile='..\data\types.xml'" /param "debug=true()" /param "verbose=true()"
