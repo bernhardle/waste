@@ -8,10 +8,10 @@
 #		2021-10-05:	Menuepunkt zum Speichern des Bearer Tokens
 #		2021-10-19:	Menuepunkt zum Herunterladen der Kommentare/Notizen
 #		2021-11-15:	Menuepunkt zum Berechnen des Transfers Product->Sales-Packaging
-#		2022-03-01: Neues Add-In installiert mit Gültigkeit bis 01.03.2023
-#		2022-06-05: Für Nutzung des hierarchischen Aufbaus der ContentTypeID angepasst.
+#		2022-03-01: Neues Add-In installiert mit Gï¿½ltigkeit bis 01.03.2023
+#		2022-06-05: Fï¿½r Nutzung des hierarchischen Aufbaus der ContentTypeID angepasst.
 #		2022-09-20: Ablaufdatum
-#		2022-10-01: Bereit für Products-in-Lots, enthaelt alle Stylesheets des Datums
+#		2022-10-01: Bereit fï¿½r Products-in-Lots, enthaelt alle Stylesheets des Datums
 #		2022-10-16: Menuepunkt zum Herunterladen der Anhaenge
 #		2022-12-22: Extraktion Laenderliste wie initiale Version
 #		2023-01-05: Transfer auf mehrere Ziele erweitert, Kopierverzeichnis aus Parameter
@@ -190,7 +190,7 @@ $($($types.content.properties | Select-Object -Property StringId,Name,Descriptio
 [System.Drawing.RectangleF] $script:decorectItm = New-Object -TypeName System.Drawing.RectangleF  $($script:decoWidth * 0.003), $($script:decoWidth * 0.025), $($script:decoWidth*1.000), $($script:decoWidth * 0.020)
 #
 #
-function local:decorate ([String] $decoInFile, [String] $decoOutFile, [String] $headingL = "Links oben", [String] $headingR = "Rechts oben", [String] $subheading = "") {
+function local:decorate ([String] $decoInFile, [String] $decoOutFile, [String] $headingL = "[top left]", [String] $headingR = "[bottom right]", [String] $subheading = "") {
 	#
 	[System.Drawing.Bitmap] $private:rawImg = [System.Drawing.Bitmap]::FromFile($decoInFile, $true)
 	#
@@ -771,7 +771,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 			<xsl:if test="`$hits > 0">
 				<messages xmlns="http://www.rothenberger.com/productcompliance/recycling/messages" number="{`$hits}">
 					<caption>
-						<xsl:text>Items in documents where 'quantity' does not match the lot size:</xsl:text>
+						<xsl:text>Lines in import file where 'quantity' does not match the lot size:</xsl:text>
 					</caption>
 					<xsl:for-each select="xls:Row [position () > 1]">
 						<xsl:if test="`$product [prd:material = current()/xls:Cell[1]/xls:Data]/prd:lotsize and not (0 = xls:Cell[5]/xls:Data mod `$product [prd:material = current()/xls:Cell[1]/xls:Data]/prd:lotsize)">
@@ -833,7 +833,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 			<xsl:if test="`$hits > 0">
 				<messages xmlns="http://www.rothenberger.com/productcompliance/recycling/messages" number="{`$hits}">
 					<caption>
-						<xsl:text>Items in documents where 'quantity' does not match the lot size:</xsl:text>
+						<xsl:text>Lines in import file where 'quantity' does not match the lot size:</xsl:text>
 					</caption>
 					<xsl:for-each select="Object [Property [@Name='Empfangsland'] = `$SAP-DR-Recycling-Preprocess.Country]">
 						<xsl:variable name="material" select="Property [@Name='Material']" />
@@ -874,7 +874,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 			<xsl:choose>
 				<xsl:when test="substring-after (Property [@Name='Fakturierte Menge'], `$SAP-DR-Recycling-Preprocess.NumberDecimalSeparator)">
 					<xsl:message>
-						<xsl:text>WARNING: Sales volume should not be decimal formatted numbers.</xsl:text>
+						<xsl:text>WARNING: Sales volume should not be decimal formatted numbers (adjusted)</xsl:text>
 					</xsl:message>
 					<xsl:value-of select="translate (substring-before (Property [@Name='Fakturierte Menge'], `$SAP-DR-Recycling-Preprocess.NumberDecimalSeparator), concat ('0123456789', `$SAP-DR-Recycling-Preprocess.NumberGroupSeparator), '0123456789')" />
 				</xsl:when>
@@ -918,7 +918,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 	exclude-result-prefixes="com dty prd">
 	<xsl:param name="debug" select="0" />
 	<xsl:param name="verbose" select="0" />
-	<xsl:param name="SAP-DR-Recycling-Converter.Country" select="'DE'" />
+	<xsl:param name="SAP-DR-Recycling-Converter.Country" />
 	<xsl:param name="SAP-DR-Recycling-Converter.MasterData" />
 	<xsl:variable name="indent1" select="10" />
 	<xsl:variable name="indent2" select="22" />
@@ -1159,7 +1159,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 		<xsl:variable name="nom" select="com:item [com:country = `$SAP-DR-Recycling-Converter.Country][not(com:material = `$duties/parent::prd:duties/parent::prd:product/prd:material)][generate-id (key('mat', com:material)[com:country = `$SAP-DR-Recycling-Converter.Country][1]) = generate-id (.)]" />
 		<xsl:if test="`$nom">
 			<xsl:if test="`$nom [not(com:material = `$master/prd:product/prd:material)]">
-				<xsl:value-of select="concat (substring (`$constBlk140, 1, `$indent1), '********* Produkte in Belegen, zu denen die Produkt-Stammdaten fehlen *********', '&#xA;&#xA;')"/>
+				<xsl:value-of select="concat (substring (`$constBlk140, 1, `$indent1), '********* Catalogue numbers in import file with no master data *********', '&#xA;&#xA;')"/>
 				<xsl:apply-templates select="`$nom [not(com:material = `$master/prd:product/prd:material)]" mode="check">
 					<xsl:sort select="com:material" />
 				</xsl:apply-templates>
@@ -1167,7 +1167,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 			</xsl:if>
 			<xsl:if test="`$verbose">
 				<xsl:if test="`$nom [com:material = `$master/prd:product/prd:material]">
-					<xsl:value-of select="concat (substring (`$constBlk140, 1, `$indent1), '********* Produkte in Belegen, ohne Duties im Batch ', `$batch, ' und Land ', `$SAP-DR-Recycling-Converter.Country ,'  *********', '&#xA;&#xA;')"/>
+					<xsl:value-of select="concat (substring (`$constBlk140, 1, `$indent1), '********* Catalogue numbers in import file with no duties in current batch ', `$batch, ' and country ', `$SAP-DR-Recycling-Converter.Country ,'  *********', '&#xA;&#xA;')"/>
 					<xsl:apply-templates select="`$nom [com:material = `$master/prd:product/prd:material]" mode="check">
 						<xsl:sort select="com:material" />
 					</xsl:apply-templates>
@@ -1863,7 +1863,7 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 		$xal.AddParam("debug", "", 0)
 	}
 	#
-	if($param -ne $null) {
+	if($null -ne $param) {
 		[String[]] $local:val = $null
 		foreach($val in $param.get_Keys()) {
 			Write-Debug @"
@@ -1941,50 +1941,50 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<options default="1">
-		<prompt>Was möchten Sie machen?</prompt>
+		<prompt>Which action do you wish to perform?</prompt>
 		<option id="1">
 			<key>BATT</key>
-			<label>Batterie Recycling Mengen konsolidieren</label>
+			<label>Consolidate battery amount according to recycling duties</label>
 		</option>
 		<option id="2">
 			<key>WEEE</key>
-			<label>Elektroschrott Mengen konsolidieren</label>
+			<label>Consolidate electric waste amount according to recycling duties</label>
 		</option>
 		<option id="3">
 			<key>TVVV</key>
-			<label>Verpackungsabfall Mengen konsolidieren</label>
+			<label>Consolidate packaging amount according to recycling duties</label>
 		</option>
 		<option id="4">
 			<key>CHECK</key>
-			<label>Produktbaum anzeigen nach Auswahl ...</label>
+			<label>Display the items referenced by catalogue numbers ...</label>
 		</option>
 		<option id="5">
 			<key>IMAGES</key>
-			<label>Anhänge und Bilder herunterladen nach Auswahl ...</label>
+			<label>Download attached images and files ...</label>
 		</option>
 		<option id="6">
 			<key>BACK</key>
-			<label>Verwendungen rückwärts verfolgen nach Auswahl ...</label>
+			<label>Trace back components to catalogue numbers ...</label>
 		</option>
 		<option id="7">
-			<key>TAGS</key>
-			<label>Recycling Tags [BATT,TVVV,WEEE] exportieren in CSV Tabelle ...</label>
+		<key>DUTY</key>
+			<label>Lookup catalogue products linked to a specific recycling duty ...</label>
 		</option>
 		<option id="8">
-			<key>DUTY</key>
-			<label>Eine Recycling-Duty verfolgen in verbundene Produkte ...</label>
+			<key>TAGS</key>
+			<label>Export recycling tags [BATT,TVVV,WEEE] into a .csv UTF-8 spreadsheet ...</label>
 		</option>
 		<option id="9">
 			<key>BEARER</key>
-			<label>Den Bearer Token speichern ...</label>
+			<label>Export the bearer token ...</label>
 		</option>
 		<option id="10">
 			<key>NOTES</key>
-			<label>Die Kommentare sammeln und speichern ...</label>
+			<label>Collect all comments into a .csv UTF-8 spreadsheet ...</label>
 		</option>
 		<option id="11">
 			<key>TRANSFER</key>
-			<label>Den Transfer von Produkten auf Verpackungen berechnen ...</label>
+			<label>Calculate bucket transfer from cataloque products into packaging, electrics or batteries ...</label>
 		</option>
 	</options>
 </root>
@@ -1998,10 +1998,10 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 function script:getOptMap([System.Xml.XmlElement] $opts, [Int] $max, [String] $brk = "x", [Int] $col = 1)
 {
 	#
-	[String] $local:title = "Was möchten Sie tun?"
+	[String] $local:title = "Which action do you wish to perform?"
 	[System.Collections.Hashtable] $local:hsh = @{}
 	#
-	if($opts.options.prompt -ne $null) {
+	if($null -ne $opts.options.prompt) {
 		$title = $opts.options.prompt
 	}
 	#
@@ -2023,12 +2023,12 @@ function script:getOptMap([System.Xml.XmlElement] $opts, [Int] $max, [String] $b
 	$null = $msg.append(@"
 	
 	
-	[$brk]$(" " * 6)Abbrechen
+	[$brk]$(" " * 6)Exit the script and remove temporary files
 
 "@)
 	[String] $trailer = @"
 
-Bitte die zu bearbeitende(n) Nummer(n) [#] ggf. mit Komma getrennt eingeben (maximal $max)
+Please enter the number given in square brackets [#] according to your selection
 "@
 	#
 	[System.Collections.Hashtable] $local:res = @{}
@@ -2053,7 +2053,7 @@ Bitte die zu bearbeitende(n) Nummer(n) [#] ggf. mit Komma getrennt eingeben (max
 			if ($item -eq $brk) {
 				return @{}
 			} else {
-				if ($item -as [Int] -ne $null) {
+				if ($null -ne $item -as [Int]) {
 					[Int] $local:id = [Int] $item
 					if($hsh.contains($id)) {
 						if($res.contains($id) -eq $false) {
@@ -2063,7 +2063,7 @@ Bitte die zu bearbeitende(n) Nummer(n) [#] ggf. mit Komma getrennt eingeben (max
 						$lasterr = @"
 $lasterr
 						
-	***	FEHLER: Die Nummer $id ist in der Liste nicht enthalten.	***
+	***	ERROR: The number $id is not included in the list of valid choices.	***
 
 "@
 						$end = $false
@@ -2072,7 +2072,7 @@ $lasterr
 					$lasterr = @"
 $lasterr
 					
-	***	FEHLER: Die Auswahl $item ist keine Zahl.	***
+	***	ERROR: The input value $item is not a number as required.	***
 
 "@
 					$end = $false
@@ -2084,7 +2084,7 @@ $lasterr
 			$lasterr = @"
 $lasterr
 			
-	***	FEHLER: Die Auswahl enthält zu viele Einträge (max. $max).	***
+	***	ERROR: Too many values have been selected. Maximum is $max.	***
 
 "@
 			$end = $false
@@ -2151,12 +2151,12 @@ function script:OpenFileDialog([String] $title = "Oups.", [String] $type = "all"
 #	Originaldatei (Version):
 #		XML Formulare\Common\ps1\SaveFileDialog.ps1 (2022-10-01)
 #
-function script:SaveFileDialog([String] $title = "Datei speichern", [String] $type = 'csv', [String] $defpath = "", [String] $defname = $null, [Boolean] $delete = $false)
+function script:SaveFileDialog([String] $title = "Write file", [String] $type = 'csv', [String] $defpath = "", [String] $defname = $null, [Boolean] $delete = $false)
 {
 	#
 	[System.Windows.Forms.SaveFileDialog] $local:saveFileDialog1 = new-object -typeName System.Windows.Forms.SaveFileDialog
 	#
-	[System.Collections.Hashtable] $local:filters = @{'csv'='CSV Datei (*.csv)|*.csv' ; 'xml'='XML Datei (*.xml)|*.xml'; 'xsl' = 'XSLT Stylesheet (*.xsl, *.xslt)|*.xsl,*.xslt'; 'htm'='HTML Datei (*.htm, *.html)|*.htm;*.html'; 'pptx'='Powerpoint Slideshow (*.pptx)|*.pptx'; 'pdf'='Portable Data Format (*.pdf)|*.pdf'; 'fo'='Formatting Objects (*.fo)|*.fo'; 'all'='Alle Dateien (*.*)|*.*'}
+	[System.Collections.Hashtable] $local:filters = @{'csv'='CSV spreadsheet (*.csv)|*.csv' ; 'xml'='XML file (*.xml)|*.xml'; 'xsl' = 'XSL transformation (*.xsl, *.xslt)|*.xsl,*.xslt'; 'all'='Alle Dateien (*.*)|*.*'}
 	#
 	[String] $local:res = $null
 	#
@@ -2171,7 +2171,7 @@ function script:SaveFileDialog([String] $title = "Datei speichern", [String] $ty
 	$saveFileDialog1.set_ShowHelp($false)
 	$saveFileDialog1.set_RestoreDirectory($true)
 	$saveFileDialog1.set_OverwritePrompt($true)
-	if($defname -ne $null) {
+	if($null -ne $defname) {
 		$saveFileDialog1.set_FileName($defname)
 	}
 	#
@@ -2203,14 +2203,14 @@ function script:SaveFileDialog([String] $title = "Datei speichern", [String] $ty
 if($verbose -eq $true -or  $debug -eq $true) {
 	#
 	Write-Verbose @"
-SAP-DR-Reporting.ps1::main(...): verbose mode.
+SAP-DR-Reporting.ps1::main(...): switched to verbose mode.
 "@
 	#
 	$VerbosePreference = [System.Management.Automation.ActionPreference]::Continue
 	#
 	if($debug -eq $true) {
 		Write-Verbose @"
-SAP-DR-Reporting.ps1::main(...): debug mode.
+SAP-DR-Reporting.ps1::main(...): switched to debug mode.
 "@
 		$DebugPreference = [System.Management.Automation.ActionPreference]::Inquire
 	} else {
@@ -2243,12 +2243,12 @@ if ($debug) {
 	#
 	$null = Read-Host -Prompt @"
     
-    Die deskriptiven Daten wurden vom SharePoint geladen:
+    Descriptive data has been fetched from SharePoint into temporary files:
 
         - Fields: ........ '$script:tmpFieldsXml'
         - ContentTypes: .. '$script:tmpTypesXml'
 
-    Eingabetaste drücken zum Fortsetzen ...
+    Hit ENTER to continue ...
 "@
 }
 #
@@ -2296,12 +2296,12 @@ while ($private:act.Length -gt 1) {
 		#
 		$null = Read-Host -Prompt @"
     
-    Die Stammdaten wurden vom SharePoint geladen:
+    Master data has been fetched from SharePoint into temporary files:
 
         - Duties: .... '$script:tmpDutiesXml'
         - Products: .. '$script:tmpProductsXml'
 
-    Eingabetaste drücken zum Fortsetzen ...
+	Press ENTER to continue ...
 "@
 	}
 	#
@@ -2321,7 +2321,7 @@ while ($private:act.Length -gt 1) {
 			#
 			[String] $local:mat = Read-Host -Prompt @"
 ++			
-++	Eine Materialnummer abfragen
+++	Enter a catalogue number as root product to trace down
 "@
 			#
 			while ($local:mat.length -gt 0) {
@@ -2336,7 +2336,7 @@ while ($private:act.Length -gt 1) {
 				#
 				$mat = Read-Host -Prompt @"
 ++				
-++	Eine weitere Materialnummer abfragen oder die Eingabetaste drücken zum Abbrechen
+++	Enter another product catalogue number to process or press ENTER to return to start menue
 "@
 				#
 			} 
@@ -2348,7 +2348,7 @@ while ($private:act.Length -gt 1) {
 			#
 			[String] $local:mat = Read-Host -Prompt @"
 ++			
-++	Eine Materialnummer als Wurzel angeben
+++	Enter a component material identifier as the leaf for tracing linkage back
 "@
 			#
 			while ($local:mat.length -gt 0) {
@@ -2363,7 +2363,7 @@ while ($private:act.Length -gt 1) {
 				#
 				$mat = Read-Host -Prompt @"
 ++				
-++	Eine weitere Materialnummer abfragen oder die Eingabetaste drücken zum Abbrechen
+++	Enter another catalogue number to process or press ENTER to return to start menue
 "@
 				#
 			} 
@@ -2379,7 +2379,7 @@ while ($private:act.Length -gt 1) {
 			#
 			[String] $private:save = $(. SaveFileDialog -defpath $pwd -defname "recytags.csv")
 			#
-			if($private:save -ne $null -and $private:save -ne "") {
+			if($null -ne $private:save -and $private:save -ne "") {
 				#
 				Out-File -InputObject $private:text -Encoding utf8 -FilePath $private:save
 				#
@@ -2390,7 +2390,7 @@ while ($private:act.Length -gt 1) {
 			#
 			[String] $local:duty = Read-Host -Prompt @"
 ++			
-++	Diese Recycling-Duty verfolgen
+++	Enter recycling duty to trace into catalogue products
 "@
 			#
 			[System.Collections.Hashtable] $local:prm = @{'SAP-DR-Product-Lookup.Mode'='duty' ; 'SAP-DR-Product-Lookup.Duty'="$local:duty" ; 'SAP-DR-Product-Lookup.FieldsLoadFile'="$script:tmpFieldsXml" ; 'SAP-DR-Product-Lookup.ContentTypesLoadFile'="$script:tmpTypesXml"; 'SAP-DR-Product-Lookup.DutyLoadFile'="$script:tmpDutiesXml"; 'SAP-DR-Product-Lookup.Product-ContentTypeID'='0x01003FAF714C6769BF4FA1B36DCF47ED659702' }
@@ -2405,7 +2405,7 @@ while ($private:act.Length -gt 1) {
 			#	
 			[String] $private:save = $(. SaveFileDialog -defpath $pwd -defname "token.txt")
 			#
-			if($private:save -ne $null -and $private:save -ne "") {
+			if($null -ne $private:save -and $private:save -ne "") {
 				#
 				Out-File -InputObject $private:act -Encoding utf8 -FilePath $private:save
 				#
@@ -2420,7 +2420,7 @@ while ($private:act.Length -gt 1) {
 		}
 		#
 		# Die Alternative Transfer berechnet den Transfer eines Vektors aus Produktzahlen auf einen Vektor aus Verpackungszahlen
-		# Der Produktvektor muss als .csv Datei mit zwei Spalten geladen werden. Die erste Zeile enthält Spaltenüberschriften:
+		# Der Produktvektor muss als .csv Datei mit zwei Spalten geladen werden. Die erste Zeile enthï¿½lt Spaltenï¿½berschriften:
 		#
 		# Material;Anzahl
 		# 1000002322;23
@@ -2428,7 +2428,7 @@ while ($private:act.Length -gt 1) {
 		#
 		'TRANSFER' {
 			#
-			[String] $local:load = $(. OpenFileDialog -title "Datei mit Produktvektor auswählen" -type "csv" -defpath $DataDir)
+			[String] $local:load = $(. OpenFileDialog -title "Datei mit Produktvektor auswï¿½hlen" -type "csv" -defpath $DataDir)
             #
 			if ([System.IO.File]::Exists($local:load) -eq $true) {
                 #
@@ -2436,18 +2436,18 @@ while ($private:act.Length -gt 1) {
 <?xml version="1.0" encoding="UTF-8"?>
 <root>
 	<options default="1">
-		<prompt>Which transfer do you wnat to calculate?</prompt>
+		<prompt>Which transfer do you want to calculate?</prompt>
 		<option id="1">
 			<key>Electric</key>
-			<label>Electric and electronic devices except of batteries.</label>
+			<label>Electric and electronic devices except of batteries</label>
 		</option>
 		<option id="2">
 			<key>Battery</key>
-			<label>Batteries and battery modules.</label>
+			<label>Batteries and battery modules</label>
 		</option>
 		<option id="3">
 			<key>Packaging</key>
-			<label>Packaging and parts thereof.</label>
+			<label>Packaging and parts thereof</label>
 		</option>
     </options>
 </root>
@@ -2487,7 +2487,7 @@ while ($private:act.Length -gt 1) {
 				#
 				[String] $private:mat = Read-Host -Prompt @"
 |			
-|	Bilder und Anhänge zu dieser Materialnummer herunterladen
+|	Enter catalogue number for download of attached images and files or press ENTER to return to start menue
 "@
 				#
 				while ($private:mat.length -gt 0) {
@@ -2551,7 +2551,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 					#
 					$private:mat = Read-Host -Prompt @"
 				
-|	Eine weitere Materialnummer eingeben oder zum Abbrechen die Eingabetaste drücken
+|	Enter another catalogue number or press ENTER to return to start menue
 "@
 				#
 				}
@@ -2571,11 +2571,11 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 				#
 				$null = Read-Host -Prompt @"
     
-    Die Stammdaten wurden  für den Batch '$bat' konvertiert:
+    Master data has been compiled for batch '$bat' and written to:
 
 	- Batchdata: . '$script:tmpMasterXml'
 
-    Eingabetaste drücken zum Fortsetzen ...
+    Hit ENTER to continue ...
 "@
 				#
 			}
@@ -2586,12 +2586,12 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 				#
 			}
 			#
-			[String] $local:load = $(. OpenFileDialog -title "Datei mit $private:bat-Export (Excel 2003 XML oder UTF-8 CSV) auswählen" -type "xmlcsv" -defpath $DataDir)
+			[String] $local:load = $(. OpenFileDialog -title "Select file with $private:bat export data (Excel 2003 XML oder UTF-8 CSV)" -type "xmlcsv" -defpath $DataDir)
 			#
 			if ([System.IO.File]::Exists($local:load) -eq $true) {
 				#
-				#	Das Verzeichnis der Auswahl als Startpunkt für die Suche nach dem
-				#	Ablageort der konvertierten Datei und für die folgende Runde festlegen.
+				#	Das Verzeichnis der Auswahl als Startpunkt fï¿½r die Suche nach dem
+				#	Ablageort der konvertierten Datei und fï¿½r die folgende Runde festlegen.
 				#
 				$DataDir = $(Get-Item $local:load).DirectoryName
 				#
@@ -2641,7 +2641,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 					#
 					Write-Host $local:res
 					#
-					Read-Host -Prompt "Taste drücken zum Fortsetzen"
+					Read-Host -Prompt "Hit ENTER to continue ..."
 					#
 				}
 				#
