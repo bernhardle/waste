@@ -46,7 +46,7 @@ Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Windows.Forms\
 #
 # -----------------------------------------------------------------------------------------------
 #
-function local:getAccessToken ([String] $pwd) {
+function local:getAccessToken ([String] $phrase) {
 	#
 	#	Siehe auch: 	https://docs.microsoft.com/de-de/sharepoint/dev/sp-add-ins/create-and-use-access-tokens-in-provider-hosted-high-trust-sharepoint-add-ins
 	#					https://anexinet.com/blog/getting-an-access-token-for-sharepoint-online/
@@ -59,11 +59,11 @@ function local:getAccessToken ([String] $pwd) {
 	#
 	[String] $private:scrambled = '76492d1116743f0423413b16050a5345MgB8AG8ANQBsAGYAcwB3AEIAawB5AGkARgAxAGcAVQBzAGYAcABvAGsAaQBaAHcAPQA9AHwAMQA5AGIAOAA0ADcAYQAyAGIAMgBiADMAMgAwAGMANABlAGUAZAA2ADEAZgA5ADgANABkADQANwA4ADYAZQAwAGYAYQA1ADUAYgAyADUANQA0ADEANwBjADcAMABkADUANABiADAAMABkAGYAMAAwADAAYQBhAGMAMQBiADgAMgAyADMAMwBhADMAYgA4ADIAMgAyAGEANQAwADQAMQBiADkAMgA0AGMAYgBjADEANQBkADkANgA5ADkAZABhAGMANQA2AGIAMwA4AGUANQA3ADMANAAwADYAZAAwADgAZQAwAGYAMwA4AGEAZABkAGQAMQAzAGIANABlADUAZQA1AGYAYQA0ADgAYgA5ADQAZQBkADkAYwAyADEAMAAxADYAZQA3ADUANABkAGMANQBhADQAYwAxADMANQAwAGEAZgBhADQAMABhADYANQA0AGIAMAA3ADMANAAwADEANQBkAGQANgBmAGYAZgA5AGYAMQAyAGMAMgBlAGEANABhADcA'
 	#
-	if (($pwd.length -lt 16) -or ($pwd.length -gt 32)) {
+	if (($phrase.length -lt 16) -or ($phrase.length -gt 32)) {
 		throw "[Fatal] SAP-DR-Reporting.ps1::getAccessToken(...): Key required with length of 16...32 chars."
 	}
 	[System.Text.ASCIIEncoding] $local:enc = New-Object System.Text.ASCIIEncoding
-	[Byte []] $private:key = $enc.GetBytes($pwd + "0" * (32 - $pwd.length))
+	[Byte []] $private:key = $enc.GetBytes($phrase + "0" * (32 - $phrase.length))
 	#
 	[System.Collections.Hashtable] $local:body=@{
 	grant_type='client_credentials';
@@ -2228,7 +2228,7 @@ SAP-DR-Reporting.ps1::main(...): switched to debug mode.
 #
 # -----------------------------------------------------------------------------------------------
 #
-[String] $private:act = $(. local:getAccessToken -pwd $(Read-Host -Prompt 'Please enter password with 16...32 characters'))
+[String] $private:act = $(. local:getAccessToken -phrase $(Read-Host -Prompt 'Please enter password with 16...32 characters'))
 #[String] $private:act = $(Get-Content "$env:HOMEDRIVE\$env:HOMEPATH\Desktop\token.txt")
 #
 [String] $local:tmp1 = [System.IO.Path]::GetTempFileName()
