@@ -15,7 +15,7 @@
 #		2022-10-16: Menuepunkt zum Herunterladen der Anhaenge
 #		2022-12-22: Extraktion Laenderliste wie initiale Version
 #		2023-01-05: Transfer auf mehrere Ziele erweitert, Kopierverzeichnis aus Parameter
-#		2023-02-04: Neues Add-In installiert mit Gueltigkeit bis 03.02.2024
+#		2023-02-04: Neues Add-In installiert mit Gueltigkeit bis 03.02.2024, hinzu [AppContext]::SetSwitch (...) für PS7+
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -31,6 +31,10 @@ Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0
 Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.IO\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.IO.dll"
 Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Drawing\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Drawing.dll"
 Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Windows.Forms\v4.0_4.0.0.0__b77a5c561934e089\System.Windows.Forms.dll"
+#
+#	To allow transformations including the 'document()' function.
+#
+[AppContext]::SetSwitch('Switch.System.Xml.AllowDefaultResolver', $true)
 #
 [String] $script:tenant = 'iptrack'
 #
