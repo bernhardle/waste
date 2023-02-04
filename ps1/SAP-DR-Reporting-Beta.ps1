@@ -8,13 +8,14 @@
 #		2021-10-05:	Menuepunkt zum Speichern des Bearer Tokens
 #		2021-10-19:	Menuepunkt zum Herunterladen der Kommentare/Notizen
 #		2021-11-15:	Menuepunkt zum Berechnen des Transfers Product->Sales-Packaging
-#		2022-03-01: Neues Add-In installiert mit G�ltigkeit bis 01.03.2023
-#		2022-06-05: F�r Nutzung des hierarchischen Aufbaus der ContentTypeID angepasst.
+#		2022-03-01: Neues Add-In installiert mit Gueltigkeit bis 01.03.2023
+#		2022-06-05: Fuer Nutzung des hierarchischen Aufbaus der ContentTypeID angepasst.
 #		2022-09-20: Ablaufdatum
-#		2022-10-01: Bereit f�r Products-in-Lots, enthaelt alle Stylesheets des Datums
+#		2022-10-01: Bereit fuer Products-in-Lots, enthaelt alle Stylesheets des Datums
 #		2022-10-16: Menuepunkt zum Herunterladen der Anhaenge
 #		2022-12-22: Extraktion Laenderliste wie initiale Version
 #		2023-01-05: Transfer auf mehrere Ziele erweitert, Kopierverzeichnis aus Parameter
+#		2023-02-04: Neues Add-In installiert mit Gueltigkeit bis 03.02.2024
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -50,9 +51,9 @@ function local:getAccessToken ([String] $pwd) {
 	#
 	[String] $private:url="https://accounts.accesscontrol.windows.net/$realm/tokens/OAuth/2"
 	#
-	[String] $private:clientId = '10e56b0b-eee0-47af-b607-851f3607cb92'
+	[String] $private:clientId = '7800865b-de7c-427b-b6fb-b5f40f1cfea3'
 	#
-	[String] $private:scrambled = '76492d1116743f0423413b16050a5345MgB8AFQASQBRAFUAVgBqADMAbgBKAEkAdQAwAGwAYgBaAHgAMgBWAFQALwAyAHcAPQA9AHwAMAA5ADEANABiADEAZABmAGEANQA3ADIAYwA3ADkAZgA1AGQANgAyADYANQA3AGMAZgAxAGIAZQBhADQAMwA1AGEAZAA1ADEAMgBlADgANQA2AGYAZgBlADYAMgBmAGIANgA2ADIANQAxAGQAOQBmADEAYwA1ADMAZQAyADcAZgA2AGUAYQA5ADgAYQBmADUAMAA5AGQANgBlAGIAZgBiADEANgA4ADQAMQA4AGIAMQBiADgANgBlAGYAMABhAGQAZgAwAGMAMwAwADQAYQAyADkAZQAyADkAOQAxAGQAMgBlAGUAZgAzADUANQBiADIAYwA5AGIAMgA1ADIAYgBjAGUANwBiAGYAMwA1ADkANgBhADcAYgBkAGEAYQBiADMAMQAwADUAMgAzAGMANgBiADgAZABkADEAOQBkADcAZAA4ADIAZAAzADQAMwBjAGMAOAAyADAAOQAyADMAZQA3ADEAYwA2ADYAZQBiAGIAYwBjADMANwBmADMAMABjAGEA'
+	[String] $private:scrambled = '76492d1116743f0423413b16050a5345MgB8AG8ANQBsAGYAcwB3AEIAawB5AGkARgAxAGcAVQBzAGYAcABvAGsAaQBaAHcAPQA9AHwAMQA5AGIAOAA0ADcAYQAyAGIAMgBiADMAMgAwAGMANABlAGUAZAA2ADEAZgA5ADgANABkADQANwA4ADYAZQAwAGYAYQA1ADUAYgAyADUANQA0ADEANwBjADcAMABkADUANABiADAAMABkAGYAMAAwADAAYQBhAGMAMQBiADgAMgAyADMAMwBhADMAYgA4ADIAMgAyAGEANQAwADQAMQBiADkAMgA0AGMAYgBjADEANQBkADkANgA5ADkAZABhAGMANQA2AGIAMwA4AGUANQA3ADMANAAwADYAZAAwADgAZQAwAGYAMwA4AGEAZABkAGQAMQAzAGIANABlADUAZQA1AGYAYQA0ADgAYgA5ADQAZQBkADkAYwAyADEAMAAxADYAZQA3ADUANABkAGMANQBhADQAYwAxADMANQAwAGEAZgBhADQAMABhADYANQA0AGIAMAA3ADMANAAwADEANQBkAGQANgBmAGYAZgA5AGYAMQAyAGMAMgBlAGEANABhADcA'
 	#
 	if (($pwd.length -lt 16) -or ($pwd.length -gt 32)) {
 		throw "[Fatal] SAP-DR-Reporting.ps1::getAccessToken(...): Key required with length of 16...32 chars."
@@ -2223,7 +2224,7 @@ SAP-DR-Reporting.ps1::main(...): switched to debug mode.
 #
 # -----------------------------------------------------------------------------------------------
 #
-[String] $private:act = $(. getAccessToken -pwd $(Read-Host -Prompt 'Please enter password with 16...32 characters'))
+[String] $private:act = $(. local:getAccessToken -pwd $(Read-Host -Prompt 'Please enter password with 16...32 characters'))
 #[String] $private:act = $(Get-Content "$env:HOMEDRIVE\$env:HOMEPATH\Desktop\token.txt")
 #
 [String] $local:tmp1 = [System.IO.Path]::GetTempFileName()
@@ -2235,9 +2236,9 @@ SAP-DR-Reporting.ps1::main(...): switched to debug mode.
 Rename-Item $local:tmp1 $script:tmpTypesXml
 Rename-Item $local:tmp2 $script:tmpFieldsXml
 #
-. getListItems -mod 'types' -act $act -out $script:tmpTypesXml
+. local:getListItems -mod 'types' -act $act -out $script:tmpTypesXml
 #
-. getListItems -mod 'fields' -act $act -out $script:tmpFieldsXml
+. local:getListItems -mod 'fields' -act $act -out $script:tmpFieldsXml
 #
 if ($debug) {
 	#
@@ -2254,7 +2255,7 @@ if ($debug) {
 #
 if([System.IO.Directory]::Exists("$copies")) {
 	#
-    	Copy-Item -Force -Path $script:tmpFieldsXml -Destination "$copies\fields.xml"
+    Copy-Item -Force -Path $script:tmpFieldsXml -Destination "$copies\fields.xml"
 	Copy-Item -Force -Path $script:tmpTypesXml -Destination "$copies\types.xml"
 	#
 }
@@ -2263,7 +2264,7 @@ while ($private:act.Length -gt 1) {
 	#
 	if (($verbose -or $debug) -ne $true) { Clear-Host }
 	#
-	[System.Collections.IEnumerator] $local:cho = $(. getOptMap -opts ($local:men).root -max 1).get_Values().GetEnumerator()
+	[System.Collections.IEnumerator] $local:cho = $(. script:getOptMap -opts ($local:men).root -max 1).get_Values().GetEnumerator()
 	#
 	if ($local:cho.moveNext() -eq $false) {
 		#
@@ -2288,9 +2289,9 @@ while ($private:act.Length -gt 1) {
 	Rename-Item $local:tmp3 $script:tmpMasterXml
 	Rename-Item $local:tmp4 $script:tmpInterXml
 	#
-	. getListItems -mod 'products' -act $act -out $script:tmpProductsXml
+	. local:getListItems -mod 'products' -act $act -out $script:tmpProductsXml
 	#
-	. getListItems -mod 'duties' -act $act -out $script:tmpDutiesXml
+	. local:getListItems -mod 'duties' -act $act -out $script:tmpDutiesXml
 	#
 	if ($debug) {
 		#
@@ -2332,7 +2333,7 @@ while ($private:act.Length -gt 1) {
 				#
 				[System.Collections.Hashtable] $local:prm = @{'SAP-DR-Product-Lookup.Mode'='forward' ; 'SAP-DR-Product-Lookup.Material'="$local:mat"; 'SAP-DR-Product-Lookup.FieldsLoadFile'="$script:tmpFieldsXml" ; 'SAP-DR-Product-Lookup.ContentTypesLoadFile'="$script:tmpTypesXml"; 'SAP-DR-Product-Lookup.DutyLoadFile'="$script:tmpDutiesXml"; 'SAP-DR-Product-Lookup.ShowDuties'='1' }  # 'SAP-DR-Product-Lookup.UnfoldBundles'='1' entfaltet gebuendelte Komponenten auf die festgelgte Anzahl
 				#
-				. msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm
+				. script:msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm
 				#
 				$mat = Read-Host -Prompt @"
 ++				
@@ -2359,7 +2360,7 @@ while ($private:act.Length -gt 1) {
 				#
 				[System.Collections.Hashtable] $local:prm = @{'SAP-DR-Product-Lookup.Mode'='backward' ; 'SAP-DR-Product-Lookup.Material'="$local:mat"; 'SAP-DR-Product-Lookup.FieldsLoadFile'="$script:tmpFieldsXml" ; 'SAP-DR-Product-Lookup.ContentTypesLoadFile'="$script:tmpTypesXml"; 'SAP-DR-Product-Lookup.DutyLoadFile'="$script:tmpDutiesXml" } 
 				#
-				. msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm
+				. script:msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm
 				#
 				$mat = Read-Host -Prompt @"
 ++				
@@ -2373,11 +2374,11 @@ while ($private:act.Length -gt 1) {
 			#
 			[System.Collections.Hashtable] $local:prm = @{'SAP-DR-Product-Lookup.Mode'='tagexport' ; 'SAP-DR-Product-Lookup.FieldsLoadFile'="$script:tmpFieldsXml" ; 'SAP-DR-Product-Lookup.ContentTypesLoadFile'="$script:tmpTypesXml"; 'SAP-DR-Product-Lookup.DutyLoadFile'="$script:tmpDutiesXml"; 'SAP-DR-Product-Lookup.Product-ContentTypeID'='0x01003FAF714C6769BF4FA1B36DCF47ED659702' }
 			#
-			[String] $private:text = $(. msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm)
+			[String] $private:text = $(. script:msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm)
 			#
 			ConvertFrom-Csv -Delimiter ';' -InputObject $private:text | Out-GridView -Wait 
 			#
-			[String] $private:save = $(. SaveFileDialog -defpath $pwd -defname "recytags.csv")
+			[String] $private:save = $(. script:SaveFileDialog -defpath $pwd -defname "recytags.csv")
 			#
 			if($null -ne $private:save -and $private:save -ne "") {
 				#
@@ -2395,7 +2396,7 @@ while ($private:act.Length -gt 1) {
 			#
 			[System.Collections.Hashtable] $local:prm = @{'SAP-DR-Product-Lookup.Mode'='duty' ; 'SAP-DR-Product-Lookup.Duty'="$local:duty" ; 'SAP-DR-Product-Lookup.FieldsLoadFile'="$script:tmpFieldsXml" ; 'SAP-DR-Product-Lookup.ContentTypesLoadFile'="$script:tmpTypesXml"; 'SAP-DR-Product-Lookup.DutyLoadFile'="$script:tmpDutiesXml"; 'SAP-DR-Product-Lookup.Product-ContentTypeID'='0x01003FAF714C6769BF4FA1B36DCF47ED659702' }
 			#
-			[String] $private:text = $(. msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm)
+			[String] $private:text = $(. script:msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm)
 			#
 			ConvertFrom-Csv -Delimiter ';' -InputObject $private:text | Out-GridView -Wait
 			#
@@ -2403,7 +2404,7 @@ while ($private:act.Length -gt 1) {
 		#
 		'BEARER' {
 			#	
-			[String] $private:save = $(. SaveFileDialog -defpath $pwd -defname "token.txt")
+			[String] $private:save = $(. script:SaveFileDialog -defpath $pwd -defname "token.txt")
 			#
 			if($null -ne $private:save -and $private:save -ne "") {
 				#
@@ -2415,7 +2416,7 @@ while ($private:act.Length -gt 1) {
 		#
 		'NOTES'	{
 			#
-			. getComments | ConvertFrom-Csv -Delimiter ";" | Out-GridView -Title "Comments in $local:list - select rows to include in spreadsheet" -PassThru | Export-Csv -Delimiter ";" -Encoding UTF8 -Path $(. SaveFileDialog -defpath $pwd -defname "comments.csv") -NoTypeInformation
+			. local:getComments | ConvertFrom-Csv -Delimiter ";" | Out-GridView -Title "Comments in $local:list - select rows to include in spreadsheet" -PassThru | Export-Csv -Delimiter ";" -Encoding UTF8 -Path $(. script:SaveFileDialog -defpath $pwd -defname "comments.csv") -NoTypeInformation
 			#
 		}
 		#
@@ -2428,7 +2429,7 @@ while ($private:act.Length -gt 1) {
 		#
 		'TRANSFER' {
 			#
-			[String] $local:load = $(. OpenFileDialog -title "Datei mit Produktvektor ausw�hlen" -type "csv" -defpath $DataDir)
+			[String] $local:load = $(. script:OpenFileDialog -title "Datei mit Produktvektor auswaehlen" -type "csv" -defpath $DataDir)
             #
 			if ([System.IO.File]::Exists($local:load) -eq $true) {
                 #
@@ -2453,17 +2454,17 @@ while ($private:act.Length -gt 1) {
 </root>
 "@
                 #
-	            [System.Collections.IEnumerator] $local:choice = $(. getOptMap -opts ($local:menue).root -max 1).get_Values().GetEnumerator()
+	            [System.Collections.IEnumerator] $local:choice = $(. script:getOptMap -opts ($local:menue).root -max 1).get_Values().GetEnumerator()
 	            #
 	            if ($local:choice.moveNext() -eq $true) {
 				    #
 				    [Xml] $local:prods = $(Import-Csv -Delimiter ";" -Path $local:load | ConvertTo-Xml)
 				    #
-				    [Xml] $local:inter = $(. msxml -xsl $script:tnsxsl -xml $local:prods -param @{'SAP-DR-Product-Transfer.ContentType'="$($local:choice.get_Current())"; 'SAP-DR-Product-Transfer.ProductLoadFile'="$script:tmpProductsXml"; 'SAP-DR-Product-Transfer.ContentTypesLoadFile'="$script:tmpTypesXml"})
+				    [Xml] $local:inter = $(. script:msxml -xsl $script:tnsxsl -xml $local:prods -param @{'SAP-DR-Product-Transfer.ContentType'="$($local:choice.get_Current())"; 'SAP-DR-Product-Transfer.ProductLoadFile'="$script:tmpProductsXml"; 'SAP-DR-Product-Transfer.ContentTypesLoadFile'="$script:tmpTypesXml"})
 				    #
-				    [Xml] $local:trans = $(. msxml -xsl $script:tnsxsl -xml $local:inter -param @{'SAP-DR-Product-Transfer.ProductLoadFile'="$script:tmpProductsXml"; 'SAP-DR-Product-Transfer.ContentTypesLoadFile'="$script:tmpTypesXml"})
+				    [Xml] $local:trans = $(. script:msxml -xsl $script:tnsxsl -xml $local:inter -param @{'SAP-DR-Product-Transfer.ProductLoadFile'="$script:tmpProductsXml"; 'SAP-DR-Product-Transfer.ContentTypesLoadFile'="$script:tmpTypesXml"})
 				    #
-				    $($local:trans).Root.ChildNodes | Select-Object -Property Material,Materialkurztext,@{Name="Amount"; Expression={$_.Anzahl -as [Int]}} | Out-GridView -Title "Products transferred to Packaging" -PassThru | Export-Csv -Path $(. SaveFileDialog -defpath $pwd -defname "$($local:choice.get_Current()).csv") -Delimiter:";" -Encoding:utf8 -NoTypeInformation
+				    $($local:trans).Root.ChildNodes | Select-Object -Property Material,Materialkurztext,@{Name="Amount"; Expression={$_.Anzahl -as [Int]}} | Out-GridView -Title "Products transferred to Packaging" -PassThru | Export-Csv -Path $(. script:SaveFileDialog -defpath $pwd -defname "$($local:choice.get_Current()).csv") -Delimiter:";" -Encoding:utf8 -NoTypeInformation
 				    #
 			    }
 			#
@@ -2498,7 +2499,7 @@ while ($private:act.Length -gt 1) {
 					#
 					[System.Collections.Hashtable] $private:prm = @{'SAP-DR-Product-Lookup.Mode'='attachments' ; 'SAP-DR-Product-Lookup.Material'="$local:mat"; 'SAP-DR-Product-Lookup.FieldsLoadFile'="$script:tmpFieldsXml" ; 'SAP-DR-Product-Lookup.ContentTypesLoadFile'="$script:tmpTypesXml"; 'SAP-DR-Product-Lookup.DutyLoadFile'="$script:tmpDutiesXml"; 'SAP-DR-Product-Lookup.ShowDuties'='1' } 
 					#
-					foreach ($row in $(. msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $private:prm | ConvertFrom-Csv -Delimiter ';')) {
+					foreach ($row in $(. script:msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $private:prm | ConvertFrom-Csv -Delimiter ';')) {
 						#
 						foreach ($decoRowVal in $(Invoke-RestMethod -Method Get -Headers @{"Authorization"="Bearer $local:act";"Accept"="application/json"} -Uri "https://$tenant.sharepoint.com/sites/$site/_api/web/Lists(guid'5cd75f66-486f-49fa-8176-b3e74fc8a10d')/Items($($row.Item_Id))/AttachmentFiles").value) {
 							#
@@ -2523,11 +2524,11 @@ SAP-DR-Reporting.ps1::main (): Downloading image '$($decoRowVal.FileName)'
 								#
 								if ($($row.Item_Id) -ne $($row.Base_Id)) {
 									#
-									. decorate -decoInFile $private:tmpImage -decoOutFile $private:outFile -headingL "$($row.Base_Material) $($row.Base_Kurztext)" -headingR $($private:props.vti_x005f_timelastwritten) -subheading "$($row.Item_Typ)($($row.Item_material)): $($row.Item_Kurztext)"
+									. local:decorate -decoInFile $private:tmpImage -decoOutFile $private:outFile -headingL "$($row.Base_Material) $($row.Base_Kurztext)" -headingR $($private:props.vti_x005f_timelastwritten) -subheading "$($row.Item_Typ)($($row.Item_material)): $($row.Item_Kurztext)"
 									#
 								} else {
 									#
-									. decorate -decoInFile $private:tmpImage -decoOutFile $private:outFile -headingL "$($row.Base_Material) $($row.Base_Kurztext)" -headingR $($private:props.vti_x005f_timelastwritten)
+									. local:decorate -decoInFile $private:tmpImage -decoOutFile $private:outFile -headingL "$($row.Base_Material) $($row.Base_Kurztext)" -headingR $($private:props.vti_x005f_timelastwritten)
 									#
 								}
 								#
@@ -2556,7 +2557,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 				#
 				}
 				#
-				cleanup -loc $private:tmpImage
+				local:cleanup -loc $private:tmpImage
 				#
 			}
 		}
@@ -2565,7 +2566,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 			#
 			[System.Collections.Hashtable] $local:prm = @{'SAP-DR-Product-Duties.DutyLoadFile'="$script:tmpDutiesXml" ; 'SAP-DR-Product-Duties.Batch'="$private:bat"; 'SAP-DR-Product-Duties.Product-ContentTypeID'='0x01003FAF714C6769BF4FA1B36DCF47ED659702' }
 			#
-			. msxml -xsl $script:pdmxsl -xml $script:tmpProductsXml -out $script:tmpMasterXml -param $local:prm
+			. script:msxml -xsl $script:pdmxsl -xml $script:tmpProductsXml -out $script:tmpMasterXml -param $local:prm
 			#
 			if ($debug) {
 				#
@@ -2586,7 +2587,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 				#
 			}
 			#
-			[String] $local:load = $(. OpenFileDialog -title "Select file with $private:bat export data (Excel 2003 XML oder UTF-8 CSV)" -type "xmlcsv" -defpath $DataDir)
+			[String] $local:load = $(. script:OpenFileDialog -title "Select file with $private:bat export data (Excel 2003 XML oder UTF-8 CSV)" -type "xmlcsv" -defpath $DataDir)
 			#
 			if ([System.IO.File]::Exists($local:load) -eq $true) {
 				#
@@ -2611,13 +2612,13 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
                     #
                 }
                 #
-				[Xml] $private:mea = $(. msxml -xsl $script:ccsxsl -xml $local:data -param @{"SAP-DR-Recycling-Countries.MasterData"="$script:tmpMasterXml"})
+				[Xml] $private:mea = $(. script:msxml -xsl $script:ccsxsl -xml $local:data -param @{"SAP-DR-Recycling-Countries.MasterData"="$script:tmpMasterXml"})
 				#
 				while ($true) {
 					#
 					if (($verbose -or $debug) -ne $true) { Clear-Host }
 					#
-					[System.Collections.IEnumerator] $private:cha = $(. getOptMap -opts ($private:mea).root -max 1).get_Values().GetEnumerator()
+					[System.Collections.IEnumerator] $private:cha = $(. script:getOptMap -opts ($private:mea).root -max 1).get_Values().GetEnumerator()
 					#
 					if (($verbose -or $debug) -ne $true) { Clear-Host }
 					#
@@ -2627,7 +2628,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 						#
 					}
 					#
-					$null = $(. msxml -xsl $script:intxsl -xml $local:data -out $script:tmpInterXml -param @{"SAP-DR-Recycling-Preprocess.MasterData"="$script:tmpMasterXml"; "SAP-DR-Recycling-Preprocess.Country"="$($private:cha.get_Current())"})
+					$null = $(. script:msxml -xsl $script:intxsl -xml $local:data -out $script:tmpInterXml -param @{"SAP-DR-Recycling-Preprocess.MasterData"="$script:tmpMasterXml"; "SAP-DR-Recycling-Preprocess.Country"="$($private:cha.get_Current())"})
 					#
 					if([System.IO.Directory]::Exists("$copies")) {
 						#
@@ -2637,7 +2638,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 					#
 					if (($verbose -or $debug) -ne $true) { Clear-Host }
 					#
-					[String] $local:res = $(. msxml -xsl $script:conxsl -xml $script:tmpInterXml -param @{"SAP-DR-Recycling-Converter.MasterData"="$script:tmpMasterXml"; "SAP-DR-Recycling-Converter.Country"="$($private:cha.get_Current())"})
+					[String] $local:res = $(. script:msxml -xsl $script:conxsl -xml $script:tmpInterXml -param @{"SAP-DR-Recycling-Converter.MasterData"="$script:tmpMasterXml"; "SAP-DR-Recycling-Converter.Country"="$($private:cha.get_Current())"})
 					#
 					Write-Host $local:res
 					#
@@ -2651,19 +2652,19 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 		#
 	}
 	#
-	cleanup -loc $script:tmpMasterXml
+	local:cleanup -loc $script:tmpMasterXml
 	#
-	cleanup -loc $script:tmpInterXml
+	local:cleanup -loc $script:tmpInterXml
 	#
-	cleanup -loc $script:tmpProductsXml
+	local:cleanup -loc $script:tmpProductsXml
 	#
-	cleanup -loc $script:tmpDutiesXml
+	local:cleanup -loc $script:tmpDutiesXml
 	#
 }
 #
-cleanup -loc $script:tmpTypesXml
+local:cleanup -loc $script:tmpTypesXml
 #
-cleanup -loc $script:tmpFieldsXml
+local:cleanup -loc $script:tmpFieldsXml
 #
 $act = "-- void --"
 #
