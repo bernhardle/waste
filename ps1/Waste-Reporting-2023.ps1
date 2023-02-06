@@ -167,7 +167,7 @@ function local:getComments () {
 			foreach($tmp in $local:cmm.value) {
 				#
 				[void] $local:buf.AppendLine(@"
-$($($types.content.properties | Select-Object -Property StringId,Name,Description | Where-Object { $_.StringId -eq $($pos.ContentTypeId)}).Name); $($pos.Material); $($pos.Description1); $($($local:tmp.createdDate).substring(0,10)); $($local:tmp.author.email); $($([Xml] $('<root>' + $($local:tmp.text) + '</root>')).root)
+$($($types.content.properties | Select-Object -Property StringId,Name,Description | Where-Object { $_.StringId -eq $($pos.ContentTypeId)}).Name); $($pos.Material); $($pos.Description1); $($($local:tmp.createdDate).ToShortDateString()); $($local:tmp.author.email); $($([Xml] $('<root>' + $($local:tmp.text) + '</root>')).root)
 "@)
 				#
 			}
