@@ -16,6 +16,7 @@
 #		2022-12-22: Extraktion Laenderliste wie initiale Version
 #		2023-01-05: Transfer auf mehrere Ziele erweitert, Kopierverzeichnis aus Parameter
 #		2023-02-04: Neues Add-In installiert mit Gueltigkeit bis 03.02.2024, hinzu [AppContext]::SetSwitch (...) für PS7+
+#		2023-02-06:	Das ist nun die Vollversion des Skripts.
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -1949,7 +1950,7 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 		<prompt>Which action do you wish to perform?</prompt>
 		<option id="1">
 			<key>BATT</key>
-			<label>Consolidate battery amount according to recycling duties</label>
+			<label>Consolidate battery waste amount according to recycling duties</label>
 		</option>
 		<option id="2">
 			<key>WEEE</key>
@@ -1957,40 +1958,40 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 		</option>
 		<option id="3">
 			<key>TVVV</key>
-			<label>Consolidate packaging amount according to recycling duties</label>
+			<label>Consolidate packaging waste amount according to recycling duties</label>
 		</option>
 		<option id="4">
 			<key>CHECK</key>
-			<label>Display the items referenced by catalogue numbers ...</label>
+			<label>Display the electric, battery, packaging items referenced by catalogue numbers ...</label>
 		</option>
 		<option id="5">
-			<key>IMAGES</key>
-			<label>Download attached images and files ...</label>
+			<key>BACK</key>
+			<label>Trace back electric, battery, packaging item to referencing catalogue numbers ...</label>
 		</option>
 		<option id="6">
-			<key>BACK</key>
-			<label>Trace back components to catalogue numbers ...</label>
-		</option>
-		<option id="7">
 		<key>DUTY</key>
 			<label>Lookup catalogue products linked to a specific recycling duty ...</label>
+		</option>
+		<option id="7">
+			<key>IMAGES</key>
+			<label>Download attached images and files ...</label>
 		</option>
 		<option id="8">
 			<key>TAGS</key>
 			<label>Export recycling tags [BATT,TVVV,WEEE] into a .csv UTF-8 spreadsheet ...</label>
 		</option>
 		<option id="9">
-			<key>BEARER</key>
-			<label>Export the bearer token ...</label>
-		</option>
-		<option id="10">
 			<key>NOTES</key>
 			<label>Collect all comments into a .csv UTF-8 spreadsheet ...</label>
 		</option>
-		<option id="11">
+		<option id="10">
 			<key>TRANSFER</key>
 			<label>Calculate bucket transfer from cataloque products into packaging, electrics or batteries ...</label>
 		</option>
+		<option id="11">
+		<key>BEARER</key>
+		<label>Export the bearer token ...</label>
+	</option>
 	</options>
 </root>
 "@
