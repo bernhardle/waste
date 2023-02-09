@@ -17,6 +17,7 @@
 #		2023-01-05: Transfer auf mehrere Ziele erweitert, Kopierverzeichnis aus Parameter
 #		2023-02-04: Neues Add-In installiert mit Gueltigkeit bis 03.02.2024, hinzu [AppContext]::SetSwitch (...) für PS7+
 #		2023-02-06:	Das ist nun die Vollversion des Skripts.
+#		2023-02-09:	Hinweis auf Ablaufdatum des SharePoint Secrets.
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -43,7 +44,35 @@ Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Windows.Forms\
 #
 [int] $script:rows = 10000
 #
-[DateTime] $script:exp = [DateTime]"2023-03-03"
+[DateTime] $script:expiration = [DateTime]"2024-02-04"
+#
+# -----------------------------------------------------------------------------------------------
+#
+[TimeSpan] $local:remaining = $($script:expiration - $(Get-Date))
+#
+if($local:remaining.days -lt 30) {
+	#
+	Write-Host @"
+	*********************************************************************************************
+
+	The validity of the SharePoint secret used in this script will expire in $($remaining.days) days.
+
+	*********************************************************************************************
+	
+"@
+#
+} elseif ($remaining.days -lt 0) {
+	#
+	Write-Host @"
+	***********************************************************************************************
+
+	The validity of the SharePoint secret used in this script has expired since $script:expiration.
+
+	***********************************************************************************************
+
+"@
+	#
+}
 #
 # -----------------------------------------------------------------------------------------------
 #
@@ -2229,7 +2258,7 @@ SAP-DR-Reporting.ps1::main(...): switched to debug mode.
 #
 # -----------------------------------------------------------------------------------------------
 #
-[String] $private:act = $(. local:getAccessToken -phrase $(Read-Host -Prompt 'Please enter password with 16...32 characters'))
+[String] $private:act = $(. local:getAccessToken -phrase $(Read-Host -Prompt 'Please enter password'))
 #[String] $private:act = $(Get-Content "$env:HOMEDRIVE\$env:HOMEPATH\Desktop\token.txt")
 #
 [String] $local:tmp1 = [System.IO.Path]::GetTempFileName()
@@ -2426,7 +2455,7 @@ while ($private:act.Length -gt 1) {
 		}
 		#
 		# Die Alternative Transfer berechnet den Transfer eines Vektors aus Produktzahlen auf einen Vektor aus Verpackungszahlen
-		# Der Produktvektor muss als .csv Datei mit zwei Spalten geladen werden. Die erste Zeile enth�lt Spalten�berschriften:
+		# Der Produktvektor muss als .csv Datei mit zwei Spalten geladen werden. Die erste Zeile enth lt Spalten berschriften:
 		#
 		# Material;Anzahl
 		# 1000002322;23
@@ -2596,8 +2625,8 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 			#
 			if ([System.IO.File]::Exists($local:load) -eq $true) {
 				#
-				#	Das Verzeichnis der Auswahl als Startpunkt f�r die Suche nach dem
-				#	Ablageort der konvertierten Datei und f�r die folgende Runde festlegen.
+				#	Das Verzeichnis der Auswahl als Startpunkt f r die Suche nach dem
+				#	Ablageort der konvertierten Datei und f r die folgende Runde festlegen.
 				#
 				$DataDir = $(Get-Item $local:load).DirectoryName
 				#
@@ -2690,11 +2719,12 @@ $DebugPreference = $script:saveDebugPref
 # -----------------------------------------------------------------------------------------------
 #
 
+
 # SIG # Begin signature block
 # MIIELgYJKoZIhvcNAQcCoIIEHzCCBBsCAQExDzANBglghkgBZQMEAgEFADB5Bgor
 # BgEEAYI3AgEEoGswaTA0BgorBgEEAYI3AgEeMCYCAwEAAAQQH8w7YFlLCE63JNLG
-# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCAX2hs45ZjB2iS+
-# TQwEYsjdKJovyaxKWAjew7wv/Wbn76CCAiQwggIgMIIBiaADAgECAhCH/5mr4JL2
+# KX7zUQIBAAIBAAIBAAIBAAIBADAxMA0GCWCGSAFlAwQCAQUABCD/KGTtWubcBTES
+# xzYu4UTOwYvIXkrTc4FOqiSlvYFx8qCCAiQwggIgMIIBiaADAgECAhCH/5mr4JL2
 # ikjfPjm0vvN/MA0GCSqGSIb3DQEBBQUAMBsxGTAXBgNVBAMTEFdhc3RlIE1hbmFn
 # ZW1lbnQwHhcNMjIxMjMxMjMwMDAwWhcNMjgxMjMxMjMwMDAwWjAbMRkwFwYDVQQD
 # ExBXYXN0ZSBNYW5hZ2VtZW50MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDF
@@ -2709,9 +2739,9 @@ $DebugPreference = $script:saveDebugPref
 # AWAwggFcAgEBMC8wGzEZMBcGA1UEAxMQV2FzdGUgTWFuYWdlbWVudAIQh/+Zq+CS
 # 9opI3z45tL7zfzANBglghkgBZQMEAgEFAKCBhDAYBgorBgEEAYI3AgEMMQowCKAC
 # gAChAoAAMBkGCSqGSIb3DQEJAzEMBgorBgEEAYI3AgEEMBwGCisGAQQBgjcCAQsx
-# DjAMBgorBgEEAYI3AgEVMC8GCSqGSIb3DQEJBDEiBCD3B3hg+jtDpxGhLy7n+DEG
-# IIKqJxFSOPQb7mbrK7zfaTANBgkqhkiG9w0BAQEFAASBgAa/3enR2rjXqlJSIteT
-# lcPzhcGCB9BysjhZljtX3DaNQNNnaTwy71qF3k03qie5UllWlFE/akEx5gLzxiR4
-# 6RbSzScXBnho9MqCeNu3OOPKXU9Hbj4EEHG1ohh6AiRoZgRxMo0GDDiQk8nWGc5O
-# zY9yLjzUZwOnK1Qwarg/eMWO
+# DjAMBgorBgEEAYI3AgEVMC8GCSqGSIb3DQEJBDEiBCB3Q2zbxPBo+jGoz2TUh5zx
+# eLnX0W0q5QR2FAQz/dv0lzANBgkqhkiG9w0BAQEFAASBgGttKIsdKtBiQkG/mgLO
+# y+ELhMKPfnp+TKjDdIoAxQOMaKYoWojJDEQukbKe2vn+TB/8HTswb0blYBIFgqF3
+# ENJZG8Kc1Wyk+dCJCvyUsr51NG+1AK35ETsQB+r0Jv2sb+3GVDYDzp91a36LyqdH
+# eGfvB/KqDZb13TOOo/UlVkAL
 # SIG # End signature block
