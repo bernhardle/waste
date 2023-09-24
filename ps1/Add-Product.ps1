@@ -6,7 +6,7 @@
 
 [String] $local:act = $(Get-Content C:\Users\Bernhard\Desktop\act.txt)
 
-[Object] $local:csv = Import-Csv -Header @('Material', 'Kurztext', 'Items') -Encoding 'utf8' -Delimiter ';' -Path $(. OpenFileDialog -title 'Select input file for reading ...' -type 'csv' -defpath $pwd)
+[Object] $local:csv = Import-Csv -Header @('Material', 'Kurztext', 'Items') -Encoding 'utf8' -Delimiter ';' -Path $(. $script:psmodules/OpenFileDialog -title 'Select input file for reading ...' -type 'csv' -defpath $pwd)
 
 $local:csv | Out-GridView  -Title "Add-ListEntry" -Wait
 

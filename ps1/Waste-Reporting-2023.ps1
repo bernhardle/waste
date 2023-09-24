@@ -2625,8 +2625,8 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 			#
 			if ([System.IO.File]::Exists($local:load) -eq $true) {
 				#
-				#	Das Verzeichnis der Auswahl als Startpunkt f r die Suche nach dem
-				#	Ablageort der konvertierten Datei und f r die folgende Runde festlegen.
+				#	Das Verzeichnis der Auswahl als Startpunkt fuer die Suche nach dem
+				#	Ablageort der konvertierten Datei und fuer die folgende Runde festlegen.
 				#
 				$DataDir = $(Get-Item $local:load).DirectoryName
 				#

@@ -10,7 +10,7 @@
 		2021-05-22:	Notified-Products included in processed items.
 		2022-06-05:	Changed to use hierarchical layout of ContentTypeID.
 		2022-10-02:	Major change to support products in lots.
-		
+		2023-07-04:	Wildcard for BATCH selection added.
 	Purpose:
 		Flatens the items hierarchy such that all products are on the same level 
 		and have all duties from the entire tree of child-items together with the 
@@ -37,7 +37,7 @@
 	-->
 	<xsl:param name="verbose" select="false()" />
 	<xsl:param name="debug" select="false()" />
-	<xsl:param name="SAP-DR-Product-Duties.Batch" select="'VOID'"/>
+	<xsl:param name="SAP-DR-Product-Duties.Batch" select="'*'"/>
 	<xsl:param name="SAP-DR-Product-Duties.DutyLoadFile" />
 	<xsl:param name="SAP-DR-Product-Duties.Product-ContentTypeID" select="'0x01003FAF714C6769BF4FA1B36DCF47ED659702'" />
 	<!--
@@ -313,7 +313,7 @@
 	-->
 	<xsl:template match="/atom:feed">
 		<xsl:variable name="drefs" select="atom:entry/atom:content/meta:properties/data:Duty_x002d_ListId/data:element"/>
-		<xsl:variable name="used" select="document($SAP-DR-Product-Duties.DutyLoadFile)/atom:feed/atom:entry[atom:content/meta:properties/data:Id = $drefs][atom:content/meta:properties/data:Batch = $SAP-DR-Product-Duties.Batch]"/>
+		<xsl:variable name="used" select="document($SAP-DR-Product-Duties.DutyLoadFile)/atom:feed/atom:entry[atom:content/meta:properties/data:Id = $drefs]['*' = $SAP-DR-Product-Duties.Batch or atom:content/meta:properties/data:Batch = $SAP-DR-Product-Duties.Batch]"/>
 		<xsl:comment>
 			<xsl:text>
 	++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -354,9 +354,9 @@
 				der Produkte auf dem SharePoint passen. Hier wird der hierarchische
 				Aufbau der ContentTypeID genutzt, der auf dem iptrack SharePoint ist:
 				Item						0x01003FAF714C6769BF4FA1B36DCF47ED6597
-				Product				0x01003FAF714C6769BF4FA1B36DCF47ED659702
+				Product					0x01003FAF714C6769BF4FA1B36DCF47ED659702
 				Notified_Product	0x01003FAF714C6769BF4FA1B36DCF47ED65970201
-				Product-in-Lots	0x01003FAF714C6769BF4FA1B36DCF47ED65970202
+				Product-in-Lots		0x01003FAF714C6769BF4FA1B36DCF47ED65970202
 			-->
 			<xsl:apply-templates select="atom:entry [starts-with (atom:content/meta:properties/data:ContentTypeId, $SAP-DR-Product-Duties.Product-ContentTypeID)]">
 				<xsl:with-param name="duties" select="$used/atom:content/meta:properties/data:Id" />
