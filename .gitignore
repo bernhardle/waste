@@ -1,3 +1,4 @@
+.gitignore
 data/
 .vs/
 master.xml
