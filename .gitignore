@@ -1,10 +1,8 @@
 .gitignore
-waste developer token.txt
 data/
 .vs/
-master.xml
+waste developer token.txt
 ps1/Archive
-ps1/Scrap
 ps1/AltovaXML Commands.txt
 ps1/SP-ListCopy.ps1
 XSLT/Discontinued
