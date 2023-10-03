@@ -1,4 +1,4 @@
-#	Listeneinträge mit PNPOnline erstellen
+#	Listeneintraege mit PNPOnline erstellen
 #	Powershell 7.1 installieren
 #	Update-Module -Name PnP.PowerShell als Admin
 #	Connect-PNPOnline -Url https://iptrack.sharepoint.com/sites/RESTAPI
@@ -24,7 +24,7 @@ Get-PnPAppAuthAccessToken | Out-File -FilePath "$env:tmp\token.txt"
 #
 [String] $uri = "https://$tnt.sharepoint.com/sites/$sit/_api/web/Lists(guid'$gid')"
 #
-#	Die nächste Zeile liefert den Type des Listenelements
+#	Die nï¿½chste Zeile liefert den Type des Listenelements
 #
 [String] $typ = $(Invoke-RestMethod -Method Get -Headers @{"Authorization"="Bearer $act";"Accept"="application/xml"} -Uri "$uri`?`$select=ListItemEntityTypeFullName").entry.content.properties.ListItemEntityTypeFullName
 #
