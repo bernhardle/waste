@@ -1,4 +1,5 @@
 .gitignore
+waste developer token.txt
 data/
 .vs/
 master.xml
