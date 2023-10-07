@@ -29,10 +29,10 @@ param([String] $DataDir = $pwd, [Boolean] $verbose = $false, [Boolean] $debug = 
 #
 Clear-Host
 #
-Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Xml\v4.0_4.0.0.0__b77a5c561934e089\System.Xml.dll"
-Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.IO\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.IO.dll"
-Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Drawing\v4.0_4.0.0.0__b03f5f7f11d50a3a\System.Drawing.dll"
-Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Windows.Forms\v4.0_4.0.0.0__b77a5c561934e089\System.Windows.Forms.dll"
+Add-Type -AssemblyName System.Xml
+Add-Type -AssemblyName System.IO
+Add-Type -AssemblyName System.Drawing
+Add-Type -AssemblyName System.Windows.Forms
 #
 #	To allow transformations including the 'document()' function.
 #
@@ -44,7 +44,7 @@ Add-Type -Path "C:\WINDOWS\Microsoft.Net\assembly\GAC_MSIL\System.Windows.Forms\
 #
 [int] $script:rows = 10000
 #
-[DateTime] $script:expiration = [DateTime]"2024-02-04"
+[DateTime] $script:expiration = [DateTime]"2025-02-01"
 #
 # -----------------------------------------------------------------------------------------------
 #
