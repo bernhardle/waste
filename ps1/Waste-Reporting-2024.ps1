@@ -18,6 +18,8 @@
 #		2023-02-04: Neues Add-In installiert mit Gueltigkeit bis 03.02.2024, hinzu [AppContext]::SetSwitch (...) für PS7+
 #		2023-02-06:	Das ist nun die Vollversion des Skripts.
 #		2023-02-09:	Hinweis auf Ablaufdatum des SharePoint Secrets.
+#		2023-10-09: [Linux] Changed Add-Type to look by assemblyname rather than location
+#		2023-10-09: [Linux] Changed PtrToStringAuto -> PtrToStringBSTR, see: https://github.com/dotnet/runtime/issues/35632#issuecomment-621507916
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -98,7 +100,7 @@ function local:getAccessToken ([String] $phrase) {
 	[System.Collections.Hashtable] $local:body=@{
 	grant_type='client_credentials';
 	client_id="$clientId@$realm";
-	client_secret="$($private:scrambled | ConvertTo-SecureString -key $key | ForEach-Object {[Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($_))})";
+	client_secret="$($private:scrambled | ConvertTo-SecureString -key $key | ForEach-Object {[Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($_))})";
 	resource="00000003-0000-0ff1-ce00-000000000000/$tenant.sharepoint.com@$realm"
 	}
 	#
@@ -1337,7 +1339,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 					<xsl:with-param name="level" select="`$level" />
 				</xsl:call-template>
 				<xsl:for-each select="`$tmp [data:Batch = current()/data:Batch]">
-					<xsl:sort select="data:Duty" case-order="upper-first" data-type="text"  order="ascending" />
+					<xsl:sort select="data:Duty" data-type="text"  order="ascending" />
 					<xsl:call-template name="line-fill">
 						<xsl:with-param name="level" select="`$level" />
 						<xsl:with-param name="label" select="data:Duty" />
@@ -1695,7 +1697,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 			<xsl:when test="`$SAP-DR-Product-Lookup.Mode = 'tagexport'">
 				<xsl:value-of select="'Material;Materialkurztext;BATT;TVVV;WEEE;SCIP&#xD;&#xA;'" />
 				<xsl:apply-templates select="atom:entry [starts-with (atom:content/meta:properties/data:ContentTypeId, `$SAP-DR-Product-Lookup.Product-ContentTypeID)]" mode="tags">
-					<xsl:sort data-type="text" case-order="upper-first" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
+					<xsl:sort data-type="text" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
 				</xsl:apply-templates>
 			</xsl:when>
 			<xsl:when test="`$SAP-DR-Product-Lookup.Mode = 'duty'">
@@ -1704,7 +1706,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 					<xsl:when test="count (`$tmp) = 1">
 						<xsl:value-of select="'Material;Materialkurztext;&#xD;&#xA;'" />
 						<xsl:apply-templates select="atom:entry [starts-with (atom:content/meta:properties/data:ContentTypeId, `$SAP-DR-Product-Lookup.Product-ContentTypeID)]" mode="duty">
-							<xsl:sort data-type="text" case-order="upper-first" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
+							<xsl:sort data-type="text" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
 						</xsl:apply-templates>
 					</xsl:when>
 					<xsl:otherwise>

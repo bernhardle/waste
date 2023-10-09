@@ -10,6 +10,7 @@
 		2022-06-05:	Changed to use hierarchical layout of ContentTypeID.
 		2022-10-02:	Major change ready to support products in lots.
 		2023-01-04:	Encoding changed from "asci" to "UTF-8"
+		2023-10-09: [Linux] Removed case-order from xsl:sort
 -->
 <xsl:stylesheet 
 	version="1.0" 
@@ -109,7 +110,7 @@
 					<xsl:with-param name="level" select="$level" />
 				</xsl:call-template>
 				<xsl:for-each select="$tmp [data:Batch = current()/data:Batch]">
-					<xsl:sort select="data:Duty" case-order="upper-first" data-type="text"  order="ascending" />
+					<xsl:sort select="data:Duty" data-type="text"  order="ascending" />
 					<xsl:call-template name="line-fill">
 						<xsl:with-param name="level" select="$level" />
 						<xsl:with-param name="label" select="data:Duty" />
@@ -366,7 +367,7 @@
 		</xsl:if>
 	</xsl:template>
 	<!--
-			Das nachstehende Template wird nur in der rekursiven Auflösung
+			Das nachstehende Template wird nur in der rekursiven Aufloesung
 			der Produktstruktur angesprochen, wenn ein Verweis aus einer
 			Stueck- oder Teileliste nachverfolgt wird. Es ist wichtig zu sehen,
 			dass das Template auch auf die Knoten der 'duty' Definitionen
@@ -568,7 +569,7 @@
 			<xsl:when test="$SAP-DR-Product-Lookup.Mode = 'tagexport'">
 				<xsl:value-of select="'Material;Materialkurztext;BATT;TVVV;WEEE;SCIP&#xD;&#xA;'" />
 				<xsl:apply-templates select="atom:entry [starts-with (atom:content/meta:properties/data:ContentTypeId, $SAP-DR-Product-Lookup.Product-ContentTypeID)]" mode="tags">
-					<xsl:sort data-type="text" case-order="upper-first" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
+					<xsl:sort data-type="text" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
 				</xsl:apply-templates>
 			</xsl:when>
 			<xsl:when test="$SAP-DR-Product-Lookup.Mode = 'duty'">
@@ -577,7 +578,7 @@
 					<xsl:when test="count ($tmp) = 1">
 						<xsl:value-of select="'Material;Materialkurztext;&#xD;&#xA;'" />
 						<xsl:apply-templates select="atom:entry [starts-with (atom:content/meta:properties/data:ContentTypeId, $SAP-DR-Product-Lookup.Product-ContentTypeID)]" mode="duty">
-							<xsl:sort data-type="text" case-order="upper-first" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
+							<xsl:sort data-type="text" lang="en" order="ascending" select="atom:content/meta:properties/data:Material" />
 						</xsl:apply-templates>
 					</xsl:when>
 					<xsl:otherwise>
@@ -608,7 +609,7 @@
 	<xsl:template match="Objects">
 		<xsl:value-of select="'Material;Materialkurztext;Produktart&#xD;&#xA;'" />
 		<xsl:for-each select="$SAP-DR-Product-Lookup.Products [starts-with (data:ContentTypeId, $SAP-DR-Product-Lookup.Product-ContentTypeID)]">
-			<xsl:sort select="data:Material" case-order="upper-first" data-type="text" order="ascending" />
+			<xsl:sort select="data:Material" data-type="text" order="ascending" />
 			<xsl:value-of select="concat(data:Material, ';', data:Description1, ';', $SAP-DR-Product-Lookup.ContentTypes [data:Id/data:StringValue = current ()/data:ContentTypeId]/data:Name, '&#xD;&#xA;')" />
 		</xsl:for-each>
 	</xsl:template>
