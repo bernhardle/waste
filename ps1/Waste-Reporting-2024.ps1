@@ -13,9 +13,9 @@
 #		2022-09-20: Ablaufdatum
 #		2022-10-01: Bereit fuer Products-in-Lots, enthaelt alle Stylesheets des Datums
 #		2022-10-16: Menuepunkt zum Herunterladen der Anhaenge
-#		2022-12-22: Extraktion Laenderliste wie initiale Version
-#		2023-01-05: Transfer auf mehrere Ziele erweitert, Kopierverzeichnis aus Parameter
-#		2023-02-04: Neues Add-In installiert mit Gueltigkeit bis 03.02.2024, hinzu [AppContext]::SetSwitch (...) für PS7+
+#		2022-12-22:	Extraktion Laenderliste wie initiale Version
+#		2023-01-05:	Transfer auf mehrere Ziele erweitert, Kopierverzeichnis aus Parameter
+#		2023-02-04:	Neues Add-In installiert mit Gueltigkeit bis 03.02.2024, hinzu [AppContext]::SetSwitch (...) für PS7+
 #		2023-02-06:	Das ist nun die Vollversion des Skripts.
 #		2023-02-09:	Hinweis auf Ablaufdatum des SharePoint Secrets.
 #		2023-10-09: [Linux] Changed Add-Type to look by assemblyname rather than location
@@ -46,7 +46,7 @@ Add-Type -AssemblyName System.Windows.Forms
 #
 [int] $script:rows = 10000
 #
-[DateTime] $script:expiration = [DateTime]"2025-02-01"
+[DateTime] $script:expiration = [DateTime]"2025-01-31"
 #
 # -----------------------------------------------------------------------------------------------
 #
@@ -87,9 +87,9 @@ function local:getAccessToken ([String] $phrase) {
 	#
 	[String] $private:url="https://accounts.accesscontrol.windows.net/$realm/tokens/OAuth/2"
 	#
-	[String] $private:clientId = '7800865b-de7c-427b-b6fb-b5f40f1cfea3'
+	[String] $private:clientId = 'f33cdb15-73eb-4f13-b424-9ed9c2cab531'
 	#
-	[String] $private:scrambled = '76492d1116743f0423413b16050a5345MgB8AG8ANQBsAGYAcwB3AEIAawB5AGkARgAxAGcAVQBzAGYAcABvAGsAaQBaAHcAPQA9AHwAMQA5AGIAOAA0ADcAYQAyAGIAMgBiADMAMgAwAGMANABlAGUAZAA2ADEAZgA5ADgANABkADQANwA4ADYAZQAwAGYAYQA1ADUAYgAyADUANQA0ADEANwBjADcAMABkADUANABiADAAMABkAGYAMAAwADAAYQBhAGMAMQBiADgAMgAyADMAMwBhADMAYgA4ADIAMgAyAGEANQAwADQAMQBiADkAMgA0AGMAYgBjADEANQBkADkANgA5ADkAZABhAGMANQA2AGIAMwA4AGUANQA3ADMANAAwADYAZAAwADgAZQAwAGYAMwA4AGEAZABkAGQAMQAzAGIANABlADUAZQA1AGYAYQA0ADgAYgA5ADQAZQBkADkAYwAyADEAMAAxADYAZQA3ADUANABkAGMANQBhADQAYwAxADMANQAwAGEAZgBhADQAMABhADYANQA0AGIAMAA3ADMANAAwADEANQBkAGQANgBmAGYAZgA5AGYAMQAyAGMAMgBlAGEANABhADcA'
+	[String] $private:scrambled = '76492d1116743f0423413b16050a5345MgB8AGkAMQByAFUAdQBKAE0AbgBJAFgAYwBnACsAQwBFAFYAZABPAGoAMQBWAHcAPQA9AHwAMwBjAGQANwA4ADYAYwA1AGQAMwA4ADcAMgBjADIAZQA0AGIAZQAyAGYANgBhADgAZABmADIAMQA1AGYAOABjAGEAMAA2ADYAYQAwAGYANgA2ADAAMQBiAGIAMABjAGQAYwAwADkANwA5ADYAOQAyAGMAMABiADQANgA5ADAANwBjADEAOABkADkAYwBiADgAMQA0AGMAMwAzAGIAYwBjADAAZAAyADQANgA5ADUAOAA0ADEAOQA0AGIAYwBkAGYAYQA5ADEAOQBkAGUAYgBlADEAOAA5ADAAOABhAGEANwBhADMAYgBhAGYAMgBiADgAYwAzADgAMwAyADgAYgBlADEANwA5AGIAZgA4ADgAZQA0ADQAZAAxADcAMABiADAAYQA5ADEAOABiAGIANwBkADAANQAyADAAZQAxAGIAYgBjADAAMwA2ADYAYgA2AGYANAAwADcANgA0AGQAYgA0AGMAZQA5AGUANAA1AGEAMwA4ADQAYQA3AGMAOAA3ADUA'
 	#
 	if (($phrase.length -lt 16) -or ($phrase.length -gt 32)) {
 		throw "[Fatal] SAP-DR-Reporting.ps1::getAccessToken(...): Key required with length of 16...32 chars."
