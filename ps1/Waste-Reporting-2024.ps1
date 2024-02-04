@@ -20,6 +20,8 @@
 #		2023-02-09:	Hinweis auf Ablaufdatum des SharePoint Secrets.
 #		2023-10-09: [Linux] Changed Add-Type to look by assemblyname rather than location
 #		2023-10-09: [Linux] Changed PtrToStringAuto -> PtrToStringBSTR, see: https://github.com/dotnet/runtime/issues/35632#issuecomment-621507916
+#		2024-02-04: Neues Add-In installiert mit Gueltigkeit bis 27.02.2025
+#		2024-02-04: Branch 'pre-2024' merged into 'main'
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
