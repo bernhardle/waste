@@ -54,7 +54,7 @@ Add-Type -AssemblyName System.Windows.Forms
 #
 [TimeSpan] $local:remaining = $($script:expiration - $(Get-Date))
 #
-if($local:remaining.days -lt 30) {
+if($local:remaining.days -lt 30 -and $local:remaining.days -ge 0) {
 	#
 	Write-Host @"
 	*********************************************************************************************
@@ -76,6 +76,10 @@ if($local:remaining.days -lt 30) {
 
 "@
 	#
+	Read-Host -Prompt "Press any key to abort."
+	#
+	exit
+	#
 }
 #
 # -----------------------------------------------------------------------------------------------
@@ -89,9 +93,10 @@ function local:getAccessToken ([String] $phrase) {
 	#
 	[String] $private:url="https://accounts.accesscontrol.windows.net/$realm/tokens/OAuth/2"
 	#
-	[String] $private:clientId = '7800865b-de7c-427b-b6fb-b5f40f1cfea3'
+	[String] $private:clientId = 'f33cdb15-73eb-4f13-b424-9ed9c2cab531'
 	#
-	[String] $private:scrambled = '76492d1116743f0423413b16050a5345MgB8AG8ANQBsAGYAcwB3AEIAawB5AGkARgAxAGcAVQBzAGYAcABvAGsAaQBaAHcAPQA9AHwAMQA5AGIAOAA0ADcAYQAyAGIAMgBiADMAMgAwAGMANABlAGUAZAA2ADEAZgA5ADgANABkADQANwA4ADYAZQAwAGYAYQA1ADUAYgAyADUANQA0ADEANwBjADcAMABkADUANABiADAAMABkAGYAMAAwADAAYQBhAGMAMQBiADgAMgAyADMAMwBhADMAYgA4ADIAMgAyAGEANQAwADQAMQBiADkAMgA0AGMAYgBjADEANQBkADkANgA5ADkAZABhAGMANQA2AGIAMwA4AGUANQA3ADMANAAwADYAZAAwADgAZQAwAGYAMwA4AGEAZABkAGQAMQAzAGIANABlADUAZQA1AGYAYQA0ADgAYgA5ADQAZQBkADkAYwAyADEAMAAxADYAZQA3ADUANABkAGMANQBhADQAYwAxADMANQAwAGEAZgBhADQAMABhADYANQA0AGIAMAA3ADMANAAwADEANQBkAGQANgBmAGYAZgA5AGYAMQAyAGMAMgBlAGEANABhADcA'
+	[String] $private:scrambled = 
+'76492d1116743f0423413b16050a5345MgB8AGkAMQByAFUAdQBKAE0AbgBJAFgAYwBnACsAQwBFAFYAZABPAGoAMQBWAHcAPQA9AHwAMwBjAGQANwA4ADYAYwA1AGQAMwA4ADcAMgBjADIAZQA0AGIAZQAyAGYANgBhADgAZABmADIAMQA1AGYAOABjAGEAMAA2ADYAYQAwAGYANgA2ADAAMQBiAGIAMABjAGQAYwAwADkANwA5ADYAOQAyAGMAMABiADQANgA5ADAANwBjADEAOABkADkAYwBiADgAMQA0AGMAMwAzAGIAYwBjADAAZAAyADQANgA5ADUAOAA0ADEAOQA0AGIAYwBkAGYAYQA5ADEAOQBkAGUAYgBlADEAOAA5ADAAOABhAGEANwBhADMAYgBhAGYAMgBiADgAYwAzADgAMwAyADgAYgBlADEANwA5AGIAZgA4ADgAZQA0ADQAZAAxADcAMABiADAAYQA5ADEAOABiAGIANwBkADAANQAyADAAZQAxAGIAYgBjADAAMwA2ADYAYgA2AGYANAAwADcANgA0AGQAYgA0AGMAZQA5AGUANAA1AGEAMwA4ADQAYQA3AGMAOAA3ADUA'
 	#
 	if (($phrase.length -lt 16) -or ($phrase.length -gt 32)) {
 		throw "[Fatal] SAP-DR-Reporting.ps1::getAccessToken(...): Key required with length of 16...32 chars."
