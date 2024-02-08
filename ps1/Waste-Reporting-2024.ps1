@@ -2507,7 +2507,7 @@ while ($private:act.Length -gt 1) {
 				    #
 				    [Xml] $local:trans = $(. script:msxml -xsl $script:tnsxsl -xml $local:inter -param @{'SAP-DR-Product-Transfer.ProductLoadFile'="$script:tmpProductsXml"; 'SAP-DR-Product-Transfer.ContentTypesLoadFile'="$script:tmpTypesXml"})
 				    #
-				    $($local:trans).Root.ChildNodes | Select-Object -Property Material,Materialkurztext,@{Name="Amount"; Expression={$_.Anzahl -as [Int]}} | Out-GridView -Title "Products transferred to Packaging" -PassThru | Export-Csv -Path $(. script:SaveFileDialog -defpath $pwd -defname "$($local:choice.get_Current()).csv") -Delimiter:";" -Encoding:utf8 -NoTypeInformation
+				    $($local:trans).Root.ChildNodes | Select-Object -Property Material,Materialkurztext,@{Name="Amount"; Expression={$_.Anzahl -as [Int]}} | Out-GridView -Title "Products transferred to $($local:choice.get_Current())" -PassThru | Export-Csv -Path $(. script:SaveFileDialog -defpath $pwd -defname "$($local:choice.get_Current()).csv") -Delimiter:";" -Encoding:utf8 -NoTypeInformation
 				    #
 			    }
 			#
