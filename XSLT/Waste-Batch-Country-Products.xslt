@@ -9,7 +9,7 @@
 	exclude-result-prefixes="com dty fn prd xs">
 	
 	<xsl:param name="Global.country" select="'DE'" />
-	<xsl:param name="Global.batch" select="'WEEE'" />
+	<xsl:param name="Global.batch" select="'BATT'" />
 	
 	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes"/>
 	
@@ -22,6 +22,9 @@
 				<material>
 					<xsl:value-of select="prd:material" />
 				</material>
+				<kurztext>
+					<xsl:value-of select="prd:materialkurztext" />
+				</kurztext>
 				<xsl:for-each-group select="prd:duties/prd:duty[key ('duties', @SPKey)[1]/com:countries/com:element = $Global.country][key ('duties', @SPKey)[1]/dty:batch = $Global.batch]" group-by="@SPKey">
 					<xsl:element name="{key ('duties', @SPKey)[1]/dty:batch}">
 						<category>
