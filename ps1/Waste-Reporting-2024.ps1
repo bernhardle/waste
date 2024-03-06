@@ -22,6 +22,7 @@
 #		2023-10-09: [Linux] Changed PtrToStringAuto -> PtrToStringBSTR, see: https://github.com/dotnet/runtime/issues/35632#issuecomment-621507916
 #		2024-02-04: Neues Add-In installiert mit Gueltigkeit bis 27.02.2025
 #		2024-02-04: Branch 'pre-2024' merged into 'main'
+#		2024-03-06:	In pre-processing xslt new template added for removing leading '0' from 'material' which do convert to numbers
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -907,7 +908,20 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 			<xsl:value-of select="`$amount" />
 		</xsl:copy>
 	</xsl:template>
-	<xsl:template match="Property [@Name='Material'] | Property[@Name='Materialkurztext'] | Property [@Name='Empfangsland']">
+	<xsl:template match="Property [@Name='Material']">
+		<xsl:copy>
+			<xsl:copy-of select="@Name" />
+			<xsl:choose>
+				<xsl:when test="number (.) = number (.)">
+					<xsl:value-of select="number (.)" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="normalize-space (.)" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="Property[@Name='Materialkurztext'] | Property [@Name='Empfangsland']">
 		<xsl:copy>
 			<xsl:copy-of select="@Name" />
 			<xsl:value-of select="normalize-space (.)" />
