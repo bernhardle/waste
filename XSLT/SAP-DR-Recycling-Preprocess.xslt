@@ -337,6 +337,22 @@
 	<!--
 
 	-->
+	<xsl:template match="Property [@Name='Material']">
+		<xsl:copy>
+			<xsl:copy-of select="@Name" />
+			<xsl:choose>
+				<xsl:when test="number (.) = number (.)">
+					<xsl:value-of select="number (.)" />
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="normalize-space (.)" />
+				</xsl:otherwise>
+			</xsl:choose>
+		</xsl:copy>
+	</xsl:template>
+	<!--
+
+	-->
 	<xsl:template match="Property [@Name='Fakturierte Menge']">
 		<xsl:param name="amount" />
 		<xsl:copy>
@@ -347,7 +363,7 @@
 	<!--
 
 	-->
-	<xsl:template match="Property [@Name='Material'] | Property[@Name='Materialkurztext'] | Property [@Name='Empfangsland']">
+	<xsl:template match="Property[@Name='Materialkurztext'] | Property [@Name='Empfangsland']">
 		<xsl:copy>
 			<xsl:copy-of select="@Name" />
 			<xsl:value-of select="normalize-space (.)" />

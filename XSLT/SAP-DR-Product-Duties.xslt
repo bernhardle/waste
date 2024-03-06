@@ -192,7 +192,7 @@
 		</com:countries>
 	</xsl:template>
 	<!--
-			Das nachstehende Template wird nur in der rekursiven Auflösung
+			Das nachstehende Template wird nur in der rekursiven Aufloesung
 			der Produktstruktur angesprochen, wenn ein Verweis aus einer
 			Stueck- oder Teileliste nachverfolgt wird. Es ist wichtig zu sehen,
 			dass das Template auch auf die Knoten der 'duty' Definitionen
@@ -248,7 +248,7 @@
 	</xsl:template>
 	<!--
 			Das nachstehende Template arbeitet nur auf den Knoten der Produkt Definitionen,
-			die sog. 'Products' sind, also Katalog-Einträge. Die anderen Knoten der Produkt
+			die sog. 'Products' sind, also Katalog-Eintraege. Die anderen Knoten der Produkt
 			Definitionen werden nie an dieses Template geliefert.
 	-->
 	<xsl:template match="atom:entry">
@@ -339,9 +339,9 @@
 					</xsl:attribute>
 				<!--
 						Nur Duties, die den Stammdaten durch Items refernziert sind, werden
-						in die temoräre Datei mit der flachen Hierarchie geschrieben. Der Modus
+						in die temoraere Datei mit der flachen Hierarchie geschrieben. Der Modus
 						ist explizit 'init', damit die Verarbeitung der Duty-Definitionen gegen die
-						der Produkt-Definitionen abgegrenzt ist
+						der Produkt-Definitionen abgegrenzt ist.
 				-->
 				<xsl:apply-templates select="$used" mode="init"/>
 				<!--

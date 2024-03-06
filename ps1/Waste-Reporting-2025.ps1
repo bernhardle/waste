@@ -2027,9 +2027,13 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 			<label>Calculate bucket transfer from cataloque products into packaging, electrics or batteries ...</label>
 		</option>
 		<option id="11">
-		<key>BEARER</key>
-		<label>Export the bearer token ...</label>
-	</option>
+			<key>EXPORT</key>
+			<label>Export a .csv UTF-8 product-by-duty list for packaging, electrics or battery duties ...</label>
+		</option>
+		<option id="12">
+			<key>BEARER</key>
+			<label>Export the bearer token ...</label>
+		</option>
 	</options>
 </root>
 "@
@@ -2039,8 +2043,7 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 #	Originaldatei (Version):
 #		XML Formulare\Common\ps1\GetOptMap.ps1 (2018-11-29)
 #
-function script:getOptMap([System.Xml.XmlElement] $opts, [Int] $max, [String] $brk = "x", [Int] $col = 1)
-{
+function script:getOptMap([System.Xml.XmlElement] $opts, [Int] $max, [String] $brk = "x", [Int] $col = 1) {
 	#
 	[String] $local:title = "Which action do you wish to perform?"
 	[System.Collections.Hashtable] $local:hsh = @{}
@@ -2145,8 +2148,7 @@ $lasterr
 #	Originaldatei (Version):
 #		XML Formulare\Common\ps1\OpenFileDialog.ps1 (2022-10-01)
 #
-function script:OpenFileDialog([String] $title = "Oups.", [String] $type = "all", [String] $defpath = "")
-{
+function script:OpenFileDialog([String] $title = "Oups.", [String] $type = "all", [String] $defpath = "") {
 	#
 	[System.Windows.Forms.OpenFileDialog] $openFileDialog1 = new-object -typeName System.Windows.Forms.OpenFileDialog
 	#
@@ -2195,8 +2197,7 @@ function script:OpenFileDialog([String] $title = "Oups.", [String] $type = "all"
 #	Originaldatei (Version):
 #		XML Formulare\Common\ps1\SaveFileDialog.ps1 (2022-10-01)
 #
-function script:SaveFileDialog([String] $title = "Write file", [String] $type = 'csv', [String] $defpath = "", [String] $defname = $null, [Boolean] $delete = $false)
-{
+function script:SaveFileDialog([String] $title = "Write file", [String] $type = 'csv', [String] $defpath = "", [String] $defname = $null, [Boolean] $delete = $false) {
 	#
 	[System.Windows.Forms.SaveFileDialog] $local:saveFileDialog1 = new-object -typeName System.Windows.Forms.SaveFileDialog
 	#
@@ -2236,6 +2237,32 @@ function script:SaveFileDialog([String] $title = "Write file", [String] $type = 
 	return $res
 }
 #
+function script:CompileMaster([String] $cmBatch) {
+	#
+	[System.Collections.Hashtable] $private:prm = @{'SAP-DR-Product-Duties.DutyLoadFile'="$script:tmpDutiesXml" ; 'SAP-DR-Product-Duties.Batch'="$cmBatch"; 'SAP-DR-Product-Duties.Product-ContentTypeID'='0x01003FAF714C6769BF4FA1B36DCF47ED659702' }
+	#
+	. script:msxml -xsl $script:pdmxsl -xml $script:tmpProductsXml -out $script:tmpMasterXml -param $private:prm
+	#
+	if ($debug) {
+		#
+		$null = Read-Host -Prompt @"
+
+Master data has been compiled for batch '$bat' and written to:
+
+- Batchdata: . '$script:tmpMasterXml'
+
+Hit ENTER to continue ...
+"@
+		#
+	}
+	#
+	if([System.IO.Directory]::Exists("$copies")) {
+		#
+		Copy-Item -Force -Path $script:tmpMasterXml -Destination "$copies\master.xml"
+		#
+	}
+	#
+}
 # -----------------------------------------------------------------------------------------------
 #
 #	Werte der Variablen $VerbosePreference und $DebugPreference sichern
@@ -2267,7 +2294,20 @@ SAP-DR-Reporting.ps1::main(...): switched to debug mode.
 #
 # -----------------------------------------------------------------------------------------------
 #
-[String] $private:act = $(. local:getAccessToken -phrase $(Read-Host -Prompt 'Please enter password'))
+$private:passphrase = {
+	#
+	if ($env:__Waste_Reporting_Key -ne $null) {
+		#
+		return $($env:__Waste_Reporting_Key)
+		#
+	} else {
+		#
+		return $(Read-Host -Prompt 'Please enter password')
+		#
+	}
+}
+#
+[String] $private:act = $(. local:getAccessToken -phrase $(. $private:passphrase))
 #[String] $private:act = $(Get-Content "$env:HOMEDRIVE\$env:HOMEPATH\Desktop\token.txt")
 #
 [String] $local:tmp1 = [System.IO.Path]::GetTempFileName()
@@ -2378,7 +2418,7 @@ while ($private:act.Length -gt 1) {
 				#
 				. script:msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm
 				#
-				$mat = Read-Host -Prompt @"
+				$local:mat = Read-Host -Prompt @"
 ++				
 ++	Enter another product catalogue number to process or press ENTER to return to start menue
 "@
@@ -2405,7 +2445,7 @@ while ($private:act.Length -gt 1) {
 				#
 				. script:msxml -xsl $script:lupxsl -xml $script:tmpProductsXml -param $local:prm
 				#
-				$mat = Read-Host -Prompt @"
+				$local:mat = Read-Host -Prompt @"
 ++				
 ++	Enter another catalogue number to process or press ENTER to return to start menue
 "@
@@ -2464,7 +2504,7 @@ while ($private:act.Length -gt 1) {
 		}
 		#
 		# Die Alternative Transfer berechnet den Transfer eines Vektors aus Produktzahlen auf einen Vektor aus Verpackungszahlen
-		# Der Produktvektor muss als .csv Datei mit zwei Spalten geladen werden. Die erste Zeile enth lt Spalten berschriften:
+		# Der Produktvektor muss als .csv Datei mit zwei Spalten geladen werden. Die erste Zeile enth"alt Spalten"uberschriften:
 		#
 		# Material;Anzahl
 		# 1000002322;23
@@ -2514,6 +2554,56 @@ while ($private:act.Length -gt 1) {
             }
             #
 		}
+		#
+		#	'EXPORT' exports a colon separated UTF-8 encoded list of product 'Material' keys 
+		#	grouped by attached duty with quantity and qualitative master data
+		#
+		'EXPORT' {
+			#
+			[Xml] $private:menue = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<options default="1">
+		<prompt>Select the batch:</prompt>
+		<option id="1">
+			<key>WEEE</key>
+			<label>Electric and electronic devices except of BATT</label>
+		</option>
+		<option id="2">
+			<key>BATT</key>
+			<label>Batteries and battery modules</label>
+		</option>
+		<option id="3">
+			<key>TVVV</key>
+			<label>Packaging for primary, secondary and transport</label>
+		</option>
+	</options>
+</root>
+"@
+			#
+			[System.Collections.IEnumerator] $local:cbat = $(. script:getOptMap -opts ($private:menue).root -max 1).get_Values().GetEnumerator()
+			#
+			if ($local:cbat.moveNext() -eq $true) {
+				#
+				. script:CompileMaster -cmBatch $($local:cbat.get_Current())
+				#
+				[Xml] $local:countries = $(. script:msxml -xsl "C:\Users\Bernhard\Documents\XML Formulare\Abfallwirtschaft\XSLT\Waste-Batch-Countries.xslt" -xml $script:tmpMasterXml)
+				#
+				[System.Collections.IEnumerator] $local:ccon = $(. script:getOptMap -opts ($local:countries).root -max 1).get_Values().GetEnumerator()
+				#
+				if ($local:ccon.moveNext() -eq $true) {
+					#
+					[String] $local:result = $(. script:msxml -xsl "C:\Users\Bernhard\Documents\XML Formulare\Abfallwirtschaft\XSLT\Waste-Batch-Country-Products.xslt" -xml $script:tmpMasterXml -param @{'Global.country'="$($local:ccon.get_Current())"})
+					#
+					Out-File -InputObject $local:result -Encoding utf8 -FilePath "C:\Users\Bernhard\Documents\XML Formulare\Abfallwirtschaft\data\aaa.csv" 
+					#
+				}
+				#
+			}
+			#
+		}
+		#	'IMAGES' downloads all images from the entire tree of items starting at and 
+		#	including the item input 'Material' key. The function 
 		#
 		'IMAGES' {
 			#
@@ -2605,30 +2695,11 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 			}
 		}
 		#
+		# 'RELOAD'
+		#
 		default {
 			#
-			[System.Collections.Hashtable] $local:prm = @{'SAP-DR-Product-Duties.DutyLoadFile'="$script:tmpDutiesXml" ; 'SAP-DR-Product-Duties.Batch'="$private:bat"; 'SAP-DR-Product-Duties.Product-ContentTypeID'='0x01003FAF714C6769BF4FA1B36DCF47ED659702' }
-			#
-			. script:msxml -xsl $script:pdmxsl -xml $script:tmpProductsXml -out $script:tmpMasterXml -param $local:prm
-			#
-			if ($debug) {
-				#
-				$null = Read-Host -Prompt @"
-    
-    Master data has been compiled for batch '$bat' and written to:
-
-	- Batchdata: . '$script:tmpMasterXml'
-
-    Hit ENTER to continue ...
-"@
-				#
-			}
-			#
-			if([System.IO.Directory]::Exists("$copies")) {
-				#
-				Copy-Item -Force -Path $script:tmpMasterXml -Destination "$copies\master.xml"
-				#
-			}
+			. script:CompileMaster -cmBatch $private:bat
 			#
 			[String] $local:load = $(. script:OpenFileDialog -title "Select file with $private:bat export data (Excel 2003 XML oder UTF-8 CSV)" -type "xmlcsv" -defpath $DataDir)
 			#

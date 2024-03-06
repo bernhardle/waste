@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	(c) Bernhard Schupp, Frankfurt (2021-2022)
+	(c) Bernhard Schupp, Frankfurt (2021-2024)
 		
 	Revision:
 		2021-02-21:	Created as 'SAP-DR-Country-List.xslt'.
@@ -119,4 +119,7 @@
 	<xsl:template match="/Wrapped">
 		<xsl:apply-templates select="Objects" />
 	</xsl:template>
+	<!--
+
+	-->
 </xsl:stylesheet>
