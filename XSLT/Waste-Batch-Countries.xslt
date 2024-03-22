@@ -30,7 +30,7 @@
 			<options default="1">
 				<prompt>Select country:</prompt>
 				<xsl:for-each select="dty:references/dty:entry/com:countries/com:element [generate-id (.) = generate-id (key('countries',.)[1])]">
-					<xsl:sort data-type="text" case-order="upper-first" order="ascending" lang="EN" />
+					<xsl:sort select="." />
 					<option id="{position()}">
 						<key><xsl:value-of select="." /></key>
 						<label><xsl:value-of select="." /></label>

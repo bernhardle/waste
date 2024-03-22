@@ -9,6 +9,11 @@
 		2022-06-05:	Support for 'Product-in-Lots' added.
 		2022-09-29:	Second master data integrity check only in verbose mode.
 		2022-10-02:	Major change ready to support products in lots.
+		
+	Function:
+		
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
 -->
 <xsl:stylesheet version="1.0" 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 

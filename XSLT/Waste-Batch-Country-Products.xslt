@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+	(c) Bernhard Schupp, Frankfurt (2024)
+		
+	Revision:
+		2024-03-22:	Created.
+		
+	Function:
+		
+		
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
+-->
 <xsl:stylesheet version="1.0" 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
@@ -33,7 +45,7 @@
 		<xsl:variable name="this" select="."/>
 		<xsl:for-each select="$this/prd:duties/prd:duty [generate-id (.) = generate-id (key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = $Global.country][$batch = key ('duties', @SPKey)[1]/dty:batch][1])]">
 			<xsl:variable name="current-group" select="key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = $Global.country][$batch = key ('duties', @SPKey)[1]/dty:batch]"/>
-			<xsl:value-of select="$this/prd:material"/><xsl:text>;</xsl:text><xsl:value-of select="key ('duties', @SPKey)[1]/dty:code"/><xsl:text>;</xsl:text><xsl:value-of select="key ('duties', @SPKey)[1]/dty:label"/><xsl:text>;</xsl:text><xsl:value-of select="format-number (count ($current-group), '#.##0')"/>
+			<xsl:value-of select="concat ($this/prd:material, ';', key ('duties', @SPKey)[1]/dty:code, ';', key ('duties', @SPKey)[1]/dty:label, ';', format-number (count ($current-group), '#.##0'),'&#xA;')"/>
 		</xsl:for-each>
 	</xsl:template>
 	<!--
@@ -44,15 +56,7 @@
 		<xsl:variable name="this" select="."/>
 		<xsl:for-each select="$this/prd:duties/prd:duty [generate-id (.) = generate-id (key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = $Global.country][$batch = key ('duties', @SPKey)[1]/dty:batch][1])]">
 			<xsl:variable name="current-group" select="key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = $Global.country][$batch = key ('duties', @SPKey)[1]/dty:batch]"/>
-			<xsl:value-of select="$this/prd:material"/><xsl:text>;</xsl:text><xsl:value-of select="key ('duties', @SPKey)[1]/dty:label"/><xsl:text>;</xsl:text><xsl:value-of select="format-number (count ($current-group), '#.##0')"/><xsl:text>;</xsl:text><xsl:value-of select="format-number (sum ($current-group/prd:data/VV_x002d_Alu), '#.##0')"/><xsl:text>;</xsl:text><xsl:value-of select="format-number (sum ($current-group/prd:data/VV_x002d_Steel) + sum ($current-group/prd:data/VV_x002d_Tinplate), '#.##0')"/><xsl:text>;</xsl:text><xsl:value-of select="format-number (sum ($current-group/prd:data/Paper), '#.##0')"/><xsl:text>;</xsl:text><xsl:value-of select="format-number (sum ($current-group/prd:data/VV_x002d_Plastic), '#.##0')"/><xsl:text>&#xA;</xsl:text>
-			<!--xsl:if test="$this/prd:material = '85800'">
-				<xsl:message><xsl:value-of select="concat (../../@SPKey, '-', @SPKey)" /></xsl:message>
-				<xsl:for-each select="$current-group">
-					<xsl:message><xsl:value-of select="prd:data/VV_x002d_Steel" /></xsl:message>
-				</xsl:for-each>
-				<xsl:message><xsl:value-of select="sum($current-group/prd:data/VV_x002d_Steel)" /></xsl:message>
-				<xsl:message><xsl:value-of select="format-number (sum ($current-group/prd:data/VV_x002d_Steel), '#.##0')" /></xsl:message>
-			</xsl:if -->
+			<xsl:value-of select="concat ($this/prd:material, ';', key ('duties', @SPKey)[1]/dty:label, ';', format-number (count ($current-group), '#.##0'), ';', format-number (sum ($current-group/prd:data/VV_x002d_Alu), '#.##0'), ';', format-number (sum ($current-group/prd:data/VV_x002d_Steel) + sum ($current-group/prd:data/VV_x002d_Tinplate), '#.##0'), ';', format-number (sum ($current-group/prd:data/Paper), '#.##0'), ';', format-number (sum ($current-group/prd:data/VV_x002d_Plastic), '#.##0'), '&#xA;')" />
 		</xsl:for-each>
 	</xsl:template>
 	<!--
@@ -63,7 +67,7 @@
 		<xsl:variable name="this" select="."/>
 		<xsl:for-each select="$this/prd:duties/prd:duty [generate-id (.) = generate-id (key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = $Global.country][$batch = key ('duties', @SPKey)[1]/dty:batch][1])]">
 			<xsl:variable name="current-group" select="key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = $Global.country][$batch = key ('duties', @SPKey)[1]/dty:batch]"/>
-			<xsl:value-of select="$this/prd:material"/><xsl:text>;</xsl:text><xsl:value-of select="key ('duties', @SPKey)[1]/dty:label"/><xsl:text>;</xsl:text><xsl:value-of select="format-number (count ($current-group), '#.##0')"/><xsl:text>;</xsl:text><xsl:value-of select="format-number(sum ($current-group/prd:data/Weight), '#.##0,000')"/><xsl:text>&#xA;</xsl:text>
+			<xsl:value-of select="concat ($this/prd:material, ';', key ('duties', @SPKey)[1]/dty:label, ';', format-number (count ($current-group), '#.##0'), ';', format-number(sum ($current-group/prd:data/Weight), '#.##0,000'), '&#xA;')" />
 		</xsl:for-each>
 	</xsl:template>
 	<!--
@@ -81,7 +85,7 @@
 					</xsl:apply-templates>
 				</xsl:when>
 				<xsl:when test="$batch = 'TVVV'">
-					<xsl:text>material; category; number of parts; aluminum [gr]; steel/tinplate (FE 04) [gr]; paper (PAP 2x) [gr]; plastic [gr]&#xA;</xsl:text>
+					<xsl:text>material; category; number of parts; aluminum [gr]; steel/tinplate (FE 04) [gr]; paper [gr]; plastic [gr]&#xA;</xsl:text>
 					<xsl:apply-templates select="prd:product[prd:duties/prd:duty/@SPKey = current()/dty:references/dty:entry[com:countries/com:element = $Global.country and dty:batch = $batch]/@SPKey]" mode="TVVV">
 						<xsl:with-param name="batch" select="$batch" />
 					</xsl:apply-templates>

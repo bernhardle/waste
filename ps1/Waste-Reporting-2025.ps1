@@ -22,6 +22,7 @@
 #		2023-10-09: [Linux] Changed PtrToStringAuto -> PtrToStringBSTR, see: https://github.com/dotnet/runtime/issues/35632#issuecomment-621507916
 #		2024-02-04: Neues Add-In installiert mit Gueltigkeit bis 27.02.2025
 #		2024-02-04: Branch 'pre-2024' merged into 'main'
+#		2024-03-22:	Export of product duties by country and batch complete
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -1879,6 +1880,118 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 	</xsl:template>
 </xsl:stylesheet>
 "@
+# -----------------------------------------------------------------------------------------------
+#
+#	Originaldatei (Version):
+#		XML Formulare/Abfallwirtschaft/XSLT/Waste-Batch-Countries.xslt (2024-02-05)
+#
+[Xml] $script:wbcxsl = @"
+<xsl:stylesheet version="1.0" 
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:fn="http://www.w3.org/2005/xpath-functions" 
+	xmlns:prd="http://www.rothenberger.com/productcompliance/recycling/productmasterdata" 
+	xmlns:com="http://www.rothenberger.com/productcompliance/recycling/commons"
+	xmlns:dty="http://www.rothenberger.com/productcompliance/recycling/duties"
+	exclude-result-prefixes="com dty fn prd xs">
+	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes" standalone="yes" />
+	<xsl:key name="countries" match="dty:references/dty:entry/com:countries/com:element" use="." />
+	<xsl:template match="/prd:root">
+		<root>
+			<options default="1">
+				<prompt>Select country:</prompt>
+				<xsl:for-each select="dty:references/dty:entry/com:countries/com:element [generate-id (.) = generate-id (key('countries',.)[1])]">
+					<xsl:sort select="." />
+					<option id="{position()}">
+						<key><xsl:value-of select="." /></key>
+						<label><xsl:value-of select="." /></label>
+					</option>
+				</xsl:for-each>
+			</options>
+		</root>
+	</xsl:template>
+</xsl:stylesheet>
+"@
+#
+# -----------------------------------------------------------------------------------------------
+#
+#	Originaldatei (Version):
+#	XML Formulare\Abfallwirtschaft\XSLT\Waste-Batch-Country-Products.xslt (2024-03-22)
+#
+[Xml] $script:wbcpxsl = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet version="1.0" 
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:fn="http://www.w3.org/2005/xpath-functions" 
+	xmlns:prd="http://www.rothenberger.com/productcompliance/recycling/productmasterdata" 
+	xmlns:com="http://www.rothenberger.com/productcompliance/recycling/commons"
+	xmlns:dty="http://www.rothenberger.com/productcompliance/recycling/duties"
+	exclude-result-prefixes="com dty fn prd xs">
+	<xsl:param name="Global.country" select="'BE'" />
+	<xsl:output method="text" encoding="UTF-8" />
+	<xsl:decimal-format decimal-separator="," grouping-separator="." NaN="*" />
+	<xsl:key name="duties" match="dty:references/dty:entry" use="@SPKey"/>
+	<xsl:key name="munch" match="prd:product/prd:duties/prd:duty" use="concat (../../@SPKey, '-', @SPKey)" />
+	<xsl:key name="countries" match="dty:references/dty:entry/com:countries/com:element" use="." />
+	<xsl:template match="prd:product" mode="SCIP">
+		<xsl:param name="batch" />
+		<xsl:variable name="this" select="."/>
+		<xsl:for-each select="`$this/prd:duties/prd:duty [generate-id (.) = generate-id (key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = `$Global.country][`$batch = key ('duties', @SPKey)[1]/dty:batch][1])]">
+			<xsl:variable name="current-group" select="key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = `$Global.country][`$batch = key ('duties', @SPKey)[1]/dty:batch]"/>
+			<xsl:value-of select="concat (`$this/prd:material, ';', key ('duties', @SPKey)[1]/dty:code, ';', key ('duties', @SPKey)[1]/dty:label, ';', format-number (count (`$current-group), '#.##0'),'&#xA;')"/>
+		</xsl:for-each>
+	</xsl:template>
+	<xsl:template match="prd:product" mode="TVVV">
+		<xsl:param name="batch" />
+		<xsl:variable name="this" select="."/>
+		<xsl:for-each select="`$this/prd:duties/prd:duty [generate-id (.) = generate-id (key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = `$Global.country][`$batch = key ('duties', @SPKey)[1]/dty:batch][1])]">
+			<xsl:variable name="current-group" select="key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = `$Global.country][`$batch = key ('duties', @SPKey)[1]/dty:batch]"/>
+			<xsl:value-of select="concat (`$this/prd:material, ';', key ('duties', @SPKey)[1]/dty:label, ';', format-number (count (`$current-group), '#.##0'), ';', format-number (sum (`$current-group/prd:data/VV_x002d_Alu), '#.##0'), ';', format-number (sum (`$current-group/prd:data/VV_x002d_Steel) + sum (`$current-group/prd:data/VV_x002d_Tinplate), '#.##0'), ';', format-number (sum (`$current-group/prd:data/Paper), '#.##0'), ';', format-number (sum (`$current-group/prd:data/VV_x002d_Plastic), '#.##0'), '&#xA;')" />
+		</xsl:for-each>
+	</xsl:template>
+	<xsl:template match="prd:product" mode="BATT-WEEE">
+		<xsl:param name="batch" />
+		<xsl:variable name="this" select="."/>
+		<xsl:for-each select="`$this/prd:duties/prd:duty [generate-id (.) = generate-id (key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = `$Global.country][`$batch = key ('duties', @SPKey)[1]/dty:batch][1])]">
+			<xsl:variable name="current-group" select="key ('munch', concat (../../@SPKey, '-', @SPKey))[key ('duties', @SPKey)[1]/com:countries/com:element = `$Global.country][`$batch = key ('duties', @SPKey)[1]/dty:batch]"/>
+			<xsl:value-of select="concat (`$this/prd:material, ';', key ('duties', @SPKey)[1]/dty:label, ';', format-number (count (`$current-group), '#.##0'), ';', format-number(sum (`$current-group/prd:data/Weight), '#.##0,000'), '&#xA;')" />
+		</xsl:for-each>
+	</xsl:template>
+	<xsl:template match="/prd:root">
+		<xsl:variable name="batch" select="@batch" />
+		<list>
+			<xsl:choose>
+				<xsl:when test="`$batch = 'BATT' or `$batch = 'WEEE'">
+					<xsl:text>material; category; number of parts; total weight of parts [kg]&#xA;</xsl:text>
+					<xsl:apply-templates select="prd:product[prd:duties/prd:duty/@SPKey = current()/dty:references/dty:entry[com:countries/com:element = `$Global.country and dty:batch = `$batch]/@SPKey]" mode="BATT-WEEE">
+						<xsl:with-param name="batch" select="`$batch" />
+						<xsl:sort data-type="text" select="prd:material" />
+					</xsl:apply-templates>
+				</xsl:when>
+				<xsl:when test="`$batch = 'TVVV'">
+					<xsl:text>material; category; number of parts; aluminum [gr]; steel/tinplate (FE 04) [gr]; paper [gr]; plastic [gr]&#xA;</xsl:text>
+					<xsl:apply-templates select="prd:product[prd:duties/prd:duty/@SPKey = current()/dty:references/dty:entry[com:countries/com:element = `$Global.country and dty:batch = `$batch]/@SPKey]" mode="TVVV">
+						<xsl:with-param name="batch" select="`$batch" />
+					</xsl:apply-templates>
+				</xsl:when>
+				<xsl:when test="`$batch = 'SCIP'">
+					<xsl:text>material; category; number of parts&#xA;</xsl:text>
+					<xsl:apply-templates select="prd:product[prd:duties/prd:duty/@SPKey = current()/dty:references/dty:entry[com:countries/com:element = `$Global.country and dty:batch = `$batch]/@SPKey]" mode="SCIP">
+						<xsl:with-param name="batch" select="`$batch" />
+						<xsl:sort data-type="text" select="prd:material" />
+					</xsl:apply-templates>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:message>
+						<xsl:text>[ERROR] 'Batch' must be either WEEE, BATT or TVVV</xsl:text>
+					</xsl:message>
+				</xsl:otherwise>
+			</xsl:choose>
+		</list>
+	</xsl:template>
+</xsl:stylesheet>
+"@
 #
 # -----------------------------------------------------------------------------------------------
 #
@@ -2015,24 +2128,28 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 			<label>Download attached images and files ...</label>
 		</option>
 		<option id="8">
-			<key>TAGS</key>
-			<label>Export recycling tags [BATT,TVVV,WEEE] into a .csv UTF-8 spreadsheet ...</label>
-		</option>
-		<option id="9">
-			<key>NOTES</key>
-			<label>Collect all comments into a .csv UTF-8 spreadsheet ...</label>
-		</option>
-		<option id="10">
 			<key>TRANSFER</key>
 			<label>Calculate bucket transfer from cataloque products into packaging, electrics or batteries ...</label>
 		</option>
+		<option id="9">
+			<key>NOTES</key>
+			<label>Export comments into a .csv UTF-8 spreadsheet ...</label>
+		</option>
+		<option id="10">
+			<key>TAGS</key>
+			<label>Export recycling tags [BATT,TVVV,WEEE] into a .csv UTF-8 spreadsheet ...</label>
+		</option>
 		<option id="11">
 			<key>EXPORT</key>
-			<label>Export a .csv UTF-8 product-by-duty list for packaging, electrics or battery duties ...</label>
+			<label>Export product-by-duty [TVVV/WEEE/BATT] into a .csv UTF-8 spreadsheet ...</label>
 		</option>
 		<option id="12">
+			<key>RELOAD</key>
+			<label>Set master data reload flag (master data will be reloaded in next step)</label>
+		</option>
+		<option id="13">
 			<key>BEARER</key>
-			<label>Export the bearer token ...</label>
+			<label>Save the bearer token to disk ...</label>
 		</option>
 	</options>
 </root>
@@ -2312,12 +2429,18 @@ $private:passphrase = {
 #
 [String] $local:tmp1 = [System.IO.Path]::GetTempFileName()
 [String] $local:tmp2 = [System.IO.Path]::GetTempFileName()
+[String] $local:tmp3 = [System.IO.Path]::GetTempFileName()
+[String] $local:tmp4 = [System.IO.Path]::GetTempFileName()
 #
 [String] $script:tmpTypesXml = "$($local:tmp1 -replace '\.tmp$', "-$pid.xml")"
 [String] $script:tmpFieldsXml = "$($local:tmp2 -replace '\.tmp$', "-$pid.xml")"
+[String] $script:tmpDutiesXml = "$($local:tmp3 -replace '\.tmp$', "-$pid.xml")"
+[String] $script:tmpProductsXml = "$($local:tmp4 -replace '\.tmp$', "-$pid.xml")"
 #
 Rename-Item $local:tmp1 $script:tmpTypesXml
 Rename-Item $local:tmp2 $script:tmpFieldsXml
+Rename-Item $local:tmp3 $script:tmpDutiesXml
+Rename-Item $local:tmp4 $script:tmpProductsXml
 #
 . local:getListItems -mod 'types' -act $act -out $script:tmpTypesXml
 #
@@ -2343,6 +2466,8 @@ if([System.IO.Directory]::Exists("$copies")) {
 	#
 }
 #
+[Boolean] $local:reload = $true
+#
 while ($private:act.Length -gt 1) {
 	#
 	if (($verbose -or $debug) -ne $true) { Clear-Host }
@@ -2357,24 +2482,31 @@ while ($private:act.Length -gt 1) {
 	#
 	[String] $private:bat = $local:cho.get_Current()
 	#
-	[String] $local:tmp1 = [System.IO.Path]::GetTempFileName()
-	[String] $local:tmp2 = [System.IO.Path]::GetTempFileName()
-	[String] $local:tmp3 = [System.IO.Path]::GetTempFileName()
-	[String] $local:tmp4 = [System.IO.Path]::GetTempFileName()
+	[String] $local:tmp5 = [System.IO.Path]::GetTempFileName()
+	[String] $local:tmp6 = [System.IO.Path]::GetTempFileName()
 	#
-	[String] $script:tmpDutiesXml = "$($local:tmp1 -replace '\.tmp$', "-$pid.xml")"
-	[String] $script:tmpProductsXml = "$($local:tmp2 -replace '\.tmp$', "-$pid.xml")"
-	[String] $script:tmpMasterXml = "$($local:tmp3 -replace '\.tmp$', "-$pid.xml")"
-	[String] $script:tmpInterXml = "$($local:tmp4 -replace '\.tmp$', "-$pid.xml")"
+	[String] $script:tmpMasterXml = "$($local:tmp5 -replace '\.tmp$', "-$pid.xml")"
+	[String] $script:tmpInterXml = "$($local:tmp6 -replace '\.tmp$', "-$pid.xml")"
 	#
-	Rename-Item $local:tmp1 $script:tmpDutiesXml
-	Rename-Item $local:tmp2 $script:tmpProductsXml
-	Rename-Item $local:tmp3 $script:tmpMasterXml
-	Rename-Item $local:tmp4 $script:tmpInterXml
+	Rename-Item $local:tmp5 $script:tmpMasterXml
+	Rename-Item $local:tmp6 $script:tmpInterXml
 	#
-	. local:getListItems -mod 'products' -act $act -out $script:tmpProductsXml
-	#
-	. local:getListItems -mod 'duties' -act $act -out $script:tmpDutiesXml
+	if ($local:reload) {
+		#
+		. local:getListItems -mod 'products' -act $act -out $script:tmpProductsXml
+		#
+		. local:getListItems -mod 'duties' -act $act -out $script:tmpDutiesXml
+		#
+		$local:reload = $false
+		#
+		if([System.IO.Directory]::Exists("$copies")) {
+			#
+			Copy-Item -Force -Path $script:tmpDutiesXml -Destination "$copies\duties.xml"
+			Copy-Item -Force -Path $script:tmpProductsXml -Destination "$copies\products.xml"
+			#
+		}
+		#
+	}
 	#
 	if ($debug) {
 		#
@@ -2387,13 +2519,6 @@ while ($private:act.Length -gt 1) {
 
 	Press ENTER to continue ...
 "@
-	}
-	#
-	if([System.IO.Directory]::Exists("$copies")) {
-		#
-		Copy-Item -Force -Path $script:tmpDutiesXml -Destination "$copies\duties.xml"
-		Copy-Item -Force -Path $script:tmpProductsXml -Destination "$copies\products.xml"
-		#
 	}
 	#
 	switch ($private:bat)
@@ -2556,7 +2681,7 @@ while ($private:act.Length -gt 1) {
 		}
 		#
 		#	'EXPORT' exports a colon separated UTF-8 encoded list of product 'Material' keys 
-		#	grouped by attached duty with quantity and qualitative master data
+		#	grouped by their respective attached duty with quantity and qualitative master data
 		#
 		'EXPORT' {
 			#
@@ -2587,15 +2712,21 @@ while ($private:act.Length -gt 1) {
 				#
 				. script:CompileMaster -cmBatch $($local:cbat.get_Current())
 				#
-				[Xml] $local:countries = $(. script:msxml -xsl "C:\Users\Bernhard\Documents\XML Formulare\Abfallwirtschaft\XSLT\Waste-Batch-Countries.xslt" -xml $script:tmpMasterXml)
+				[Xml] $local:countries = $(. script:msxml -xsl $script:wbcxsl -xml $script:tmpMasterXml)
 				#
 				[System.Collections.IEnumerator] $local:ccon = $(. script:getOptMap -opts ($local:countries).root -max 1).get_Values().GetEnumerator()
 				#
 				if ($local:ccon.moveNext() -eq $true) {
 					#
-					[String] $local:result = $(. script:msxml -xsl "C:\Users\Bernhard\Documents\XML Formulare\Abfallwirtschaft\XSLT\Waste-Batch-Country-Products.xslt" -xml $script:tmpMasterXml -param @{'Global.country'="$($local:ccon.get_Current())"})
+					[String] $local:result = $(. script:msxml -xsl $script:wbcpxsl -xml $script:tmpMasterXml -param @{'Global.country'="$($local:ccon.get_Current())"})
 					#
-					Out-File -InputObject $local:result -Encoding utf8 -FilePath "C:\Users\Bernhard\Documents\XML Formulare\Abfallwirtschaft\data\aaa.csv" 
+					[String] $private:save = $(. script:SaveFileDialog -defpath $pwd -defname "product-duties-$($local:ccon.get_Current())-$($local:cbat.get_Current()).csv")
+					#
+					if($null -ne $private:save -and $private:save -ne "") {
+						#
+						Out-File -InputObject $local:result -Encoding utf8 -FilePath $private:save
+						#
+					} 
 					#
 				}
 				#
@@ -2697,6 +2828,12 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 		#
 		# 'RELOAD'
 		#
+		'RELOAD' {
+			#
+			$local:reload = $true
+			#
+		}
+		#
 		default {
 			#
 			. script:CompileMaster -cmBatch $private:bat
@@ -2770,11 +2907,11 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 	#
 	local:cleanup -loc $script:tmpInterXml
 	#
-	local:cleanup -loc $script:tmpProductsXml
-	#
-	local:cleanup -loc $script:tmpDutiesXml
-	#
 }
+#
+local:cleanup -loc $script:tmpProductsXml
+#
+local:cleanup -loc $script:tmpDutiesXml
 #
 local:cleanup -loc $script:tmpTypesXml
 #
