@@ -8,8 +8,7 @@
 #		2010-12-09:	Meldungen angepasst.
 #		2010-12-12:	Meldungen aus PS cmdlets.
 #		2016-06-29:	.emf und vollstaendige Dateinamen.
-#       	2020-06-04:	Graustufenumwandlung als weitere Option.
-#		2025-05-20:	Skalierung hinzu
+#       2020-06-04: Graustufenumwandlung als weitere Option.
 #
 param([Boolean] $greyscale = $false, [String] $format = "png", [Boolean] $verbose = $true, [Boolean] $debug = $false)
 #
@@ -40,10 +39,11 @@ begin
     [System.Drawing.SolidBrush] $script:decoBrush = New-Object -TypeName System.Drawing.SolidBrush $([System.Drawing.Color]::FromName('White'))
     #
 	Write-Verbose @"
-Bitmap2PngPipe.ps1: 'greyscale' ... $greyscale.
-Bitmap2PngPipe.ps1: 'format' ...... $format
-Bitmap2PngPipe.ps1: 'verbose' ..... $verbose.
-Bitmap2PngPipe.ps1: 'debug' ....... $debug.
+
+Bitmap2PngPipe.ps1::begin: 'greyscale' ............ $greyscale
+Bitmap2PngPipe.ps1::begin: 'format' ............... $format
+Bitmap2PngPipe.ps1::begin: 'verbose' .............. $verbose
+Bitmap2PngPipe.ps1::begin: 'debug' ................ $debug
 "@
     #
     [String] $local:add = "_resized"
@@ -96,8 +96,8 @@ Bitmap2PngPipe.ps1::process: Writing ... $oup
     #
     Write-Verbose @"
 
-Bitmap2PngPipe.ps1::process: Input image width .... $($local:rawImg.Width)
-Bitmap2PngPipe.ps1::process: Input image height ... $($local:rawImg.Height)
+Bitmap2PngPipe.ps1::process: Input image width .... $($local:rawImg.Width) px
+Bitmap2PngPipe.ps1::process: Input image height ... $($local:rawImg.Height) px
 "@
     #
     [System.Drawing.RotateFlipType] $local:rot = [System.Drawing.RotateFlipType]::Rotate270FlipNone
@@ -139,7 +139,7 @@ Bitmap2PngPipe.ps1::process: Input image height ... $($local:rawImg.Height)
             #
         }
         #
-        # $local:rawImg.RotateFlip($local:rot)
+        $local:rawImg.RotateFlip($local:rot)
         #
     }
     #
@@ -148,13 +148,17 @@ Bitmap2PngPipe.ps1::process: Input image height ... $($local:rawImg.Height)
     [Double] $private:scaleWitdh = $($local:rawImg.Width) * $local:scale
     [Double] $private:scaleHeight = $($local:rawImg.Height) * $local:scale
     #
-    Write-Host @"
-Bitmap2PngPipe.ps1::process: scale ...... $local:scale
-Bitmap2PngPipe.ps1::process: width ...... $private:scaleWitdh
-Bitmap2PngPipe.ps1::process: height ..... $private:scaleHeight
-Bitmap2PngPipe.ps1::process: rotation ... $local:rot
-Bitmap2PngPipe.ps1::process: xpos ....... $([Convert]::ToInt32(0.5 * ($script:decoWidth - $private:scaleWitdh)))
-Bitmap2PngPipe.ps1::process: ypos ....... $([Convert]::ToInt32(0.5 * ($script:decoHeight -  $private:scaleHeight)))
+    $script:decoWidth = $private:scaleWitdh
+    $script:decoHeight = $private:scaleHeight
+    #
+    Write-Verbose @"
+
+Bitmap2PngPipe.ps1::process: scale ................ $([Convert]::ToInt32(100.0 * $local:scale)) %
+Bitmap2PngPipe.ps1::process: width outer .......... $([Convert]::ToInt32($private:decoWidth)) px
+Bitmap2PngPipe.ps1::process: width image .......... $([Convert]::ToInt32($private:scaleWitdh)) px
+Bitmap2PngPipe.ps1::process: height outer ......... $([Convert]::ToInt32($private:decoHeight)) px
+Bitmap2PngPipe.ps1::process: height image ......... $([Convert]::ToInt32($private:scaleHeight)) px
+Bitmap2PngPipe.ps1::process: rotation ............. $local:rot
 "@
     #
     [System.Drawing.Bitmap] $private:scaledBitmap = New-Object -TypeName System.Drawing.Bitmap @([Convert]::ToInt32($script:decoWidth), [Convert]::ToInt32($script:decoHeight))
