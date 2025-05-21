@@ -8,7 +8,8 @@
 #		2010-12-09:	Meldungen angepasst.
 #		2010-12-12:	Meldungen aus PS cmdlets.
 #		2016-06-29:	.emf und vollstaendige Dateinamen.
-#       2020-06-04: Graustufenumwandlung als weitere Option.
+#       	2020-06-04:	Graustufenumwandlung als weitere Option.
+#		2025-05-20:	Skalierung hinzu
 #
 param([Boolean] $greyscale = $false, [String] $format = "png", [Boolean] $verbose = $true, [Boolean] $debug = $false)
 #
