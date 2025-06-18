@@ -25,6 +25,7 @@
 #		2024-03-06:	In pre-processing xslt new template added for removing leading '0' from 'material' which do convert to numbers
 #		2024-03-22:	Export of product duties by country and batch complete
 #		2025-02-02: Neues Secret mit Gueltigkeit bis 03.02.2026
+#		2025-06-18: Lookup XSLT 'lupxsl' replaced after bugfix see file mentioned below
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -1623,7 +1624,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 			</xsl:apply-templates>
 			<xsl:call-template name="track-down">
 				<xsl:with-param name="level" select="`$level + 1" />
-				<xsl:with-param name="chain" select="substring (`$chain, string-length (`$key) + 3)" />
+				<xsl:with-param name="chain" select="substring (`$chain, string-length (`$key) + 4)" />
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>

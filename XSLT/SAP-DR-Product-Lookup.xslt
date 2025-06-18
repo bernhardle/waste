@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	(c) Bernhard Schupp, Frankfurt (2021-2022)
+	(c) Bernhard Schupp, Frankfurt (2021-2025)
 		
 	Revision:
 		2021-04-30:	Created.
@@ -11,6 +11,7 @@
 		2022-10-02:	Major change ready to support products in lots.
 		2023-01-04:	Encoding changed from "asci" to "UTF-8"
 		2023-10-09: [Linux] Removed case-order from xsl:sort
+		2025-06-18:	Template 'track-down' fixed chain step back from 3 to 4
 -->
 <xsl:stylesheet 
 	version="1.0" 
@@ -386,7 +387,7 @@
 				<xsl:message terminate="no">
 					<xsl:text>
 					
-[FATAL] SAP-DR-Product-Lookup.xslt (line 386): Loop detected in chain </xsl:text><xsl:value-of select="$next" /><xsl:text> Skipping.
+[FATAL] SAP-DR-Product-Lookup.xslt (line 389): Loop detected in chain </xsl:text><xsl:value-of select="$next" /><xsl:text> Skipping.
 
 </xsl:text>
 				</xsl:message>
@@ -454,7 +455,7 @@
 			</xsl:apply-templates>
 			<xsl:call-template name="track-down">
 				<xsl:with-param name="level" select="$level + 1" />
-				<xsl:with-param name="chain" select="substring ($chain, string-length ($key) + 3)" />
+				<xsl:with-param name="chain" select="substring ($chain, string-length ($key) + 4)" />
 			</xsl:call-template>
 		</xsl:if>
 	</xsl:template>
