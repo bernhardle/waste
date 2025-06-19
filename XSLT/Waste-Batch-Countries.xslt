@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	(c) Bernhard Schupp, Frankfurt (2024)
+	(c) Bernhard Schupp, Frankfurt (2024-2025)
 		
 	Revision:
 		2024-02-05:	Created as 'Waste-Batch-Countries.xslt'.
 		
+	Function:
+		Extracts the list of sales countries from the sales input data
+		for population the user selection menu items. Output XML
+		fits for direct forwarding into 'GetOptMap.ps1'
+		
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
 -->
 <xsl:stylesheet version="1.0" 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 

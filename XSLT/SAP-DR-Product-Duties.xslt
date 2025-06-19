@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	(c) Bernhard Schupp, Frankfurt (2021-2022)
+	(c) Bernhard Schupp, Frankfurt (2021-2025)
 		
 	Revision:
-		2021-02-21:	Erstellt.
+		2021-02-21:	Created as 'SAP-DR-Product-Duties.xslt'.
 		2021-04-19:	Verarbeitung von Bundle Items.
 		2021-04-28:	Mode 'duty' bei der Verarbeitung der Elemente 'data:Duty_x002d_ListId' entfernt.
 		2021-05-03:	Support for field data:Rank in Duties added.
@@ -11,10 +11,14 @@
 		2022-06-05:	Changed to use hierarchical layout of ContentTypeID.
 		2022-10-02:	Major change to support products in lots.
 		2023-07-04:	Wildcard for BATCH selection added.
+
 	Purpose:
 		Flatens the items hierarchy such that all products are on the same level 
 		and have all duties from the entire tree of child-items together with the 
 		data of the linked device/battery/electric/chemical directly attached to.
+		
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
 -->
 <xsl:stylesheet 
 	version="1.0" 

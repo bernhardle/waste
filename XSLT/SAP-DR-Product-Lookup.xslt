@@ -12,6 +12,11 @@
 		2023-01-04:	Encoding changed from "asci" to "UTF-8"
 		2023-10-09: [Linux] Removed case-order from xsl:sort
 		2025-06-18:	Template 'track-down' fixed chain step back from 3 to 4
+		
+	Purpose:
+		
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
 -->
 <xsl:stylesheet 
 	version="1.0" 

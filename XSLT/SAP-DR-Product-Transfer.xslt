@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	(c) Bernhard Schupp, Frankfurt (2021-2023)
+	(c) Bernhard Schupp, Frankfurt (2021-2025)
 		
 	Revision:
 		2021-11-14:	Created.
 		2022-10-02:	Major revision tag to reflect readiness for products in lots.
 		2023-01-05:	Transfer targets parameterized.
+		
+	Purpose:
+		
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
 -->
 <xsl:stylesheet 
 	version="1.0" 

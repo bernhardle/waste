@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	(c) Bernhard Schupp, Frankfurt (2021-2024)
+	(c) Bernhard Schupp, Frankfurt (2021-2025)
 		
 	Revision:
 		2021-02-21:	Created as 'SAP-DR-Country-List.xslt'.
 		2022-06-20:	Discontinued.
 		2022-12-22:	Revived, extended for csv based XML and renamed to 'SAP-DR-Recycling-Countries.xslt'.
 		
+	Purpose:
+		
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
 -->
 <xsl:stylesheet version="1.0" 
 	xmlns:com="http://www.rothenberger.com/productcompliance/recycling/commons" 

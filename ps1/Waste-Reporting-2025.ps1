@@ -419,7 +419,7 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 # -----------------------------------------------------------------------------------------------
 #
 #	Originaldatei (Version):
-#		XML Formulare/Abfallwirtschaft/XSLT/SAP-DR-Product-Duties.xslt (2022-10-01)
+#		XML Formulare/Abfallwirtschaft/XSLT/SAP-DR-Product-Duties.xslt (2022-10-02)
 #
 # -----------------------------------------------------------------------------------------------
 #

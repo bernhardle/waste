@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-	(c) Bernhard Schupp, Frankfurt (2022-2023)
+	(c) Bernhard Schupp, Frankfurt (2022-2025)
 		
 	Revision:
 		2022-06-12:	Created.
@@ -14,11 +14,13 @@
 		exception of products which are required to be ordered
 		in predetermined lot sizes > 1. These products are of the
 		type Product-in-Lots and have all their respective individual 
-		sales number (not the aggregated volume) diveded by the 
+		sales number (not the aggregated volume) divided by the 
 		predetermined lot size in transformation. Errors are flagged
 		where an individual sales number is not an exact multiple of
 		the predetermined lot size.
-		
+			
+	Usage:
+		XML Formulare\Abfallwirtschaft\ps1\Waste-Reporting-2025.ps1 (copy)
 -->
 <xsl:stylesheet version="1.0" 
 	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
