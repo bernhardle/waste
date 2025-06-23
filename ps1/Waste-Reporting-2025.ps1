@@ -26,6 +26,7 @@
 #		2024-03-22:	Export of product duties by country and batch complete
 #		2025-02-02: Neues Secret mit Gueltigkeit bis 03.02.2026
 #		2025-06-18: Lookup XSLT 'lupxsl' replaced after bugfix see file mentioned below
+#		2025-06-23: New function for feed-in calculation as linkage from items into catalogue products
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -1899,6 +1900,110 @@ SAP-DR-Reporting.ps1::cleanup (...)	Deleting temporary file '$loc'.
 # -----------------------------------------------------------------------------------------------
 #
 #	Originaldatei (Version):
+#		XML Formulare/Abfallwirtschaft/XSLT/Waste-Items-Feed-In.xslt (2025-06-23)
+#
+[Xml] $script:finxsl = @"
+<?xml version="1.0" encoding="UTF-8"?>
+<xsl:stylesheet 
+	version="1.0" 
+	xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:data="http://schemas.microsoft.com/ado/2007/08/dataservices" 
+	xmlns:meta="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata" 
+	exclude-result-prefixes="atom data meta">
+	<xsl:output method="xml" version="1.0" encoding="UTF-8" indent="yes" standalone="yes" />
+	<xsl:param name="verbose" select="false()" />
+	<xsl:param name="debug" select="false()" />
+	<xsl:param name="Waste-Items-Feed-In.ProductLoadFile" />
+	<xsl:param name="Waste-Items-Feed-In.ContentTypesLoadFile" />
+	<xsl:param name="Waste-Items-Feed-In.Product-ContentTypeID" />
+	<xsl:variable name="Waste-Items-Feed-In.Products" select="document(`$Waste-Items-Feed-In.ProductLoadFile)/atom:feed/atom:entry" />
+	<xsl:variable name="Waste-Items-Feed-In.ContentTypes" select="document(`$Waste-Items-Feed-In.ContentTypesLoadFile)/atom:feed/atom:entry/atom:content/meta:properties" />
+	<xsl:key name="entry" use="atom:content/meta:properties/data:Id" match="/atom:feed/atom:entry" />
+	<xsl:key name="back" use="atom:content/meta:properties/data:ItemListId/data:element | atom:content/meta:properties/data:Part_x002d_ListId/data:element | atom:content/meta:properties/data:Reference_x002d_ProductId" match="/atom:feed/atom:entry" />
+	<xsl:key name="items" use="Key" match="Entry" />
+	<xsl:template match="meta:properties">
+		<xsl:param name="item" />
+		<Entry>
+			<Key>
+				<xsl:value-of select="concat (data:ID, '-', `$item/atom:content/meta:properties/data:ID)" />
+			</Key>
+			<Material>
+				<xsl:value-of select="data:Material" />
+			</Material>
+			<Kurztext>
+				<xsl:value-of select="data:Description1" />
+			</Kurztext>
+			<Item>
+				<xsl:value-of select="`$item/atom:content/meta:properties/data:Material" />
+			</Item>
+		</Entry>
+	</xsl:template>
+	<xsl:template match="atom:entry">
+		<xsl:param name="item" select="." />
+		<xsl:param name="loop" select="'[x]'" />
+		<xsl:variable name="top" select="key ('back', atom:content/meta:properties/data:Id)" />
+		<xsl:choose>
+			<xsl:when test="contains(`$loop, concat ('[', atom:content/meta:properties/data:Id, ']'))">
+				<xsl:message terminate="no">
+					<xsl:text>
+					
+[FATAL] Waste-Items-Feed-In.xslt (line 461): Loop detected in chain </xsl:text><xsl:value-of select="concat('[', atom:content/meta:properties/data:Id, ']-', `$loop)" /><xsl:text> Skipping.
+
+</xsl:text>
+				</xsl:message>
+			</xsl:when>
+			<xsl:otherwise>
+
+				<xsl:if test="`$top">
+					<xsl:apply-templates select="`$top">
+						<xsl:with-param name="item" select="`$item" />
+						<xsl:with-param name="loop" select="concat('[', atom:content/meta:properties/data:Id, ']-', `$loop)" />
+					</xsl:apply-templates>
+				</xsl:if>
+				<xsl:apply-templates select="atom:content/meta:properties[starts-with (data:ContentTypeId, `$Waste-Items-Feed-In.Product-ContentTypeID)]">
+					<xsl:with-param name="item" select="`$item" />
+				</xsl:apply-templates>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+	<xsl:template match="Property [@Name='Material']">
+		<xsl:apply-templates select="`$Waste-Items-Feed-In.Products [atom:content/meta:properties/data:Material = current()]" />
+	</xsl:template>
+	<xsl:template match="Object [@Type='System.Management.Automation.PSCustomObject']">
+		<xsl:apply-templates select="Property" />
+	</xsl:template>
+	<xsl:template match="/Objects">
+		<List>
+			<xsl:apply-templates select="Object" />
+		</List>
+	</xsl:template>
+	<xsl:template match="Key" />
+	<xsl:template match="Material | Kurztext | Item">
+		<xsl:copy>
+			<xsl:apply-templates />
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="Entry">
+		<xsl:copy>
+			<xsl:apply-templates select="child::node()" />
+			<Links>
+				<xsl:value-of select="count (key ('items', Key))" />
+			</Links>
+		</xsl:copy>
+	</xsl:template>
+	<xsl:template match="/List">
+		<Root>
+			<xsl:apply-templates select="Entry [generate-id (.) = generate-id (key ('items', Key)[1])]" >
+				<xsl:sort select="Material" data-type="text" case-order="lower-first" order="ascending" />
+			</xsl:apply-templates>
+		</Root>
+	</xsl:template>
+</xsl:stylesheet>
+"@
+# -----------------------------------------------------------------------------------------------
+#
+#	Originaldatei (Version):
 #		XML Formulare/Abfallwirtschaft/XSLT/Waste-Batch-Countries.xslt (2024-02-05)
 #
 [Xml] $script:wbcxsl = @"
@@ -2148,22 +2253,26 @@ function script:msxml([Object] $xsl, [Object] $xml, [String] $out = '', [System.
 			<label>Calculate bucket transfer from cataloque products into packaging, electrics or batteries ...</label>
 		</option>
 		<option id="9">
+			<key>FEED-IN</key>
+			<label>Calculate item vector feed into cataloque products ...</label>
+		</option>
+		<option id="10">
 			<key>NOTES</key>
 			<label>Export comments into a .csv UTF-8 spreadsheet ...</label>
 		</option>
-		<option id="10">
+		<option id="11">
 			<key>TAGS</key>
 			<label>Export recycling tags [BATT,TVVV,WEEE] into a .csv UTF-8 spreadsheet ...</label>
 		</option>
-		<option id="11">
+		<option id="12">
 			<key>EXPORT</key>
 			<label>Export product-by-duty [TVVV/WEEE/BATT] into a .csv UTF-8 spreadsheet ...</label>
 		</option>
-		<option id="12">
+		<option id="13">
 			<key>RELOAD</key>
 			<label>Set master data reload flag (master data will be reloaded in next step)</label>
 		</option>
-		<option id="13">
+		<option id="14">
 			<key>BEARER</key>
 			<label>Save the bearer token to disk ...</label>
 		</option>
@@ -2644,7 +2753,27 @@ while ($private:act.Length -gt 1) {
 			#
 		}
 		#
-		# Die Alternative Transfer berechnet den Transfer eines Vektors aus Produktzahlen auf einen Vektor aus Verpackungszahlen
+		# 'FEED-IN' calculates the feed in from components in the input vector to products and outputs a table
+        # product-component-relations with the count of different links found between these. The input vector
+		# has to be provided in UTF-8 .csv format with one column captioned 'Material' as shown below:
+		#
+		# Material
+		# 1000002322
+		# ...
+		#
+        'FEED-IN' {
+            #
+            [String] $local:load = $(. script:OpenFileDialog -title "Select file with component vector (utf8, csv) ..." -type "csv" -defpath $DataDir)
+            #
+			if ([System.IO.File]::Exists($local:load) -eq $true) {
+                #
+                $([XML] $(. script:msxml -xsl $script:finxsl -xml $([XML] $(. script:msxml -xsl $script:finxsl -xml $([XML] $(Import-Csv -Encoding:utf8 -Delimiter ";" -Path $local:load | ConvertTo-Xml)) -param @{'Waste-Items-Feed-In.ProductLoadFile'="$script:tmpProductsXml"; ; 'Waste-Items-Feed-In.ContentTypesLoadFile'="$script:tmpTypesXml"; 'Waste-Items-Feed-In.Product-ContentTypeID'='0x01003FAF714C6769BF4FA1B36DCF47ED659702'})))).Root.ChildNodes | Select-Object -Property Material,Kurztext,Item,@{Name="Links"; Expression={$_.Links -as [Int]}} | Out-GridView -Title "Products including any of the items ..." -PassThru | Export-Csv -Path $(. script:SaveFileDialog -defpath $pwd -defname "feed-in.csv") -Delimiter:";" -Encoding:utf8 -NoTypeInformation
+				#
+            }
+            #
+        }
+		#
+		# Die Alternative TRANSFER berechnet den Transfer eines Vektors aus Produktzahlen auf einen Vektor aus Verpackungszahlen
 		# Der Produktvektor muss als .csv Datei mit zwei Spalten geladen werden. Die erste Zeile enth"alt Spalten"uberschriften:
 		#
 		# Material;Anzahl
@@ -2653,7 +2782,7 @@ while ($private:act.Length -gt 1) {
 		#
 		'TRANSFER' {
 			#
-			[String] $local:load = $(. script:OpenFileDialog -title "Datei mit Produktvektor auswaehlen" -type "csv" -defpath $DataDir)
+			[String] $local:load = $(. script:OpenFileDialog -title "Select file with product vector (utf8, csv) ..." -type "csv" -defpath $DataDir)
             #
 			if ([System.IO.File]::Exists($local:load) -eq $true) {
                 #
