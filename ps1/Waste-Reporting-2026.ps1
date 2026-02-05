@@ -117,7 +117,7 @@ function local:getAccessToken ([String] $phrase) {
 	resource="00000003-0000-0ff1-ce00-000000000000/$tenant.sharepoint.com@$realm"
 	}
 	#
-	[Microsoft.PowerShell.Commands.WebResponseObject] $aut = Invoke-WebRequest -Method POST -ContentType 'application/x-www-form-urlencoded' -Body $body -Uri $url
+	[Microsoft.PowerShell.Commands.WebResponseObject] $aut = Invoke-WebRequest -UseBasicParsing -Method POST -ContentType 'application/x-www-form-urlencoded' -Body $body -Uri $url
 	#
 	return $($aut.Content | ConvertFrom-Json).access_token
 	#
@@ -187,7 +187,7 @@ function local:getComments () {
 	#
 	[String] $private:gid = '5cd75f66-486f-49fa-8176-b3e74fc8a10d'
 	#
-	[Xml] $local:res = $(Invoke-WebRequest -Method GET -Headers @{'Authorization'="Bearer $act";'Accept'='application/xml'}  -Uri "https://$script:tenant.sharepoint.com/sites/$script:site/_api/Web/Lists(guid'$private:gid')/items?`$select=ID,Material,Description1,ContentTypeId&`$top=$script:rows&`$orderby=ID").Content
+	[Xml] $local:res = $(Invoke-WebRequest -UseBasicParsing -Method GET -Headers @{'Authorization'="Bearer $act";'Accept'='application/xml'}  -Uri "https://$script:tenant.sharepoint.com/sites/$script:site/_api/Web/Lists(guid'$private:gid')/items?`$select=ID,Material,Description1,ContentTypeId&`$top=$script:rows&`$orderby=ID").Content
 	#
 	[Object] $local:types = $(Invoke-RestMethod -Method Get -Headers @{"Authorization"="Bearer $act";"Accept"="application/xml"} -Uri "https://$script:tenant.sharepoint.com/sites/$script:site/_api/Web/Lists(guid'$private:gid')/ContentTypes")
 	#
@@ -2930,7 +2930,7 @@ SAP-DR-Reporting.ps1::main (): Downloading image '$($decoRowVal.FileName)'
 |	writing to: . $private:outfile
 "@
 								#
-								Invoke-WebRequest -Method Get -Headers @{"Authorization"="Bearer $local:act";"Accept"="image/jpeg, image/png, image/gif, image/pjpeg"} -Uri "https://$tenant.sharepoint.com/sites/$site/_api/web/getFileByServerRelativeUrl('$($decoRowVal.ServerRelativeUrl)')/`$value" -OutFile $private:tmpImage
+								Invoke-WebRequest -UseBasicParsing -Method Get -Headers @{"Authorization"="Bearer $local:act";"Accept"="image/jpeg, image/png, image/gif, image/pjpeg"} -Uri "https://$tenant.sharepoint.com/sites/$site/_api/web/getFileByServerRelativeUrl('$($decoRowVal.ServerRelativeUrl)')/`$value" -OutFile $private:tmpImage
 								#
 								if ($($row.Item_Id) -ne $($row.Base_Id)) {
 									#
@@ -2954,7 +2954,7 @@ SAP-DR-Reporting.ps1::main (): Downloading file '$($decoRowVal.FileName)'
 |	writing to: . $private:outfile
 "@
 								#
-								Invoke-WebRequest -Method Get -Headers @{"Authorization"="Bearer $local:act";"Accept"="application/octet-stream"} -Uri "https://$tenant.sharepoint.com/sites/$site/_api/web/getFileByServerRelativeUrl('$($decoRowVal.ServerRelativeUrl)')/`$value" -OutFile $private:outFile
+								Invoke-WebRequest -UseBasicParsing -Method Get -Headers @{"Authorization"="Bearer $local:act";"Accept"="application/octet-stream"} -Uri "https://$tenant.sharepoint.com/sites/$site/_api/web/getFileByServerRelativeUrl('$($decoRowVal.ServerRelativeUrl)')/`$value" -OutFile $private:outFile
 								#
 							}
 						}
