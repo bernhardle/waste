@@ -1,5 +1,5 @@
 #
-#	(c) Bernhard Schupp, Frankfurt (2021-2025)
+#	(c) Bernhard Schupp, Frankfurt (2021-2026)
 #
 #	Version:
 #		2021-01-23:	Erstellt.
@@ -28,6 +28,8 @@
 #		2025-06-18: Lookup XSLT 'lupxsl' replaced after bugfix see file mentioned below
 #		2025-06-23: New function for feed-in calculation as linkage from items into catalogue products
 #		2025-12-31: Neues secret mit Gueltigkeit bis 28.02.2027
+#		2026-08-07:	Migriert zu Authentifizierung über X.509 Zertifikat wegen Abschaltung der ACS Secrets
+#					siehe auch https://learn.microsoft.com/de-de/sharepoint/dev/sp-add-ins/retirement-announcement-for-azure-acs
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -51,6 +53,10 @@ Add-Type -AssemblyName System.Windows.Forms
 [String] $script:tenant = 'iptrack'
 #
 [String] $script:site = 'RESTAPI'
+#
+#	Thumbprint of the X.509 certificate used for authentication with SP App
+#
+[String] $script:certificate = 'F23B19D0B81B4C489FC5427C40ED59503327ED25'
 #
 [int] $script:rows = 10000
 #
@@ -90,36 +96,67 @@ if($local:remaining.days -lt 30 -and $local:remaining.days -ge 0) {
 #
 # -----------------------------------------------------------------------------------------------
 #
-function local:getAccessToken ([String] $phrase) {
+function ConvertTo-Base64Url {
+     param([byte[]]$Bytes)
+     [Convert]::ToBase64String($Bytes).
+         TrimEnd("=").
+         Replace("+", "-").
+         Replace("/", "_")
+}
+#
+# -----------------------------------------------------------------------------------------------
+#
+function local:getAccessToken ([String] $Thumbprint) {
 	#
-	#	Siehe auch: 	https://docs.microsoft.com/de-de/sharepoint/dev/sp-add-ins/create-and-use-access-tokens-in-provider-hosted-high-trust-sharepoint-add-ins
-	#					https://anexinet.com/blog/getting-an-access-token-for-sharepoint-online/
+	#	Siehe auch: 	https://learn.microsoft.com/en-us/sharepoint/dev/solution-guidance/security-apponly-azuread
+	#					https://learn.microsoft.com/en-us/entra/identity-platform/certificate-credentials
 	#
 	[String] $private:realm='801ebad3-0ef0-432b-9be5-90593a424825'
 	#
-	[String] $private:url="https://accounts.accesscontrol.windows.net/$realm/tokens/OAuth/2"
-	#
 	[String] $private:clientId = 'f33cdb15-73eb-4f13-b424-9ed9c2cab531'
 	#
-	[String] $private:scrambled = 
-'76492d1116743f0423413b16050a5345MgB8AGYATABmAG4AZgA3AGYAQwA5AGQAVwBTAGcANgBuAEoAKwBBAGUATgB0AEEAPQA9AHwAMQBmADQAMgBmADcAYQA4ADMAZQBjAGMAMAA0AGEAZQBmADUANQBjAGUAZAA1ADEANgA3ADQANAA4AGUAYwBhAGQAMwBlADAAMABlADkANQA4ADIAMwAxAGUAMwBiAGMAZAA1ADQAOQBmADYAZAA0ADIAMQBiADgAZQA2AGUAMgBkADkAZABmADEAZQBjADYAOABkADEANwA2AGMAYwBmADcAZABjADcAMAA1ADgAZgA2AGEAOQAwAGQAYgBkAGMAZABlAGQAMwA1AGIAYQAzAGEAZQAxADMAZQBhADYANQBkADgAMABjADAAZQA5ADgAMQBjADIAZQAxADAAOQBlADUAMwBmADIAMgBjADAAYwAzADcAMgAzADQAYwA4AGQAZgBhADQANABlAGIANgA5ADYAMgA1ADMAZgBlAGIAMwA2ADYAMgA1ADYANABmAGIAOQBkAGEANwAwADEANgAyADUANwBjADIAMwA5ADIAMABmAGMANgBmAGEANQAwAGMA'
+	[System.Security.Cryptography.X509Certificates.X509Certificate2] $cert = Get-ChildItem Cert:\CurrentUser\My | Where-Object { $_.Thumbprint -eq $script:certificate}
 	#
-	if (($phrase.length -lt 16) -or ($phrase.length -gt 32)) {
-		throw "[Fatal] SAP-DR-Reporting.ps1::getAccessToken(...): Key required with length of 16...32 chars."
-	}
-	[System.Text.ASCIIEncoding] $local:enc = New-Object System.Text.ASCIIEncoding
-	[Byte []] $private:key = $enc.GetBytes($phrase + "0" * (32 - $phrase.length))
-	#
-	[System.Collections.Hashtable] $local:body=@{
-	grant_type='client_credentials';
-	client_id="$clientId@$realm";
-	client_secret="$($private:scrambled | ConvertTo-SecureString -key $key | ForEach-Object {[Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($_))})";
-	resource="00000003-0000-0ff1-ce00-000000000000/$tenant.sharepoint.com@$realm"
+	$header = @{
+		alg = "RS256" 
+		typ = "JWT"
+		x5t = $(ConvertTo-Base64Url $cert.GetCertHash())
 	}
 	#
-	[Microsoft.PowerShell.Commands.WebResponseObject] $aut = Invoke-WebRequest -UseBasicParsing -Method POST -ContentType 'application/x-www-form-urlencoded' -Body $body -Uri $url
+	$payload = @{
+		aud = "https://login.microsoftonline.com/$private:realm/oauth2/v2.0/token"
+		iss = $private:clientId
+		sub = $private:clientId
+		jti = $($(New-Guid).ToString())
+		nbf = $([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())
+		exp = $([DateTimeOffset]::UtcNow.AddMinutes(10).ToUnixTimeSeconds())
+	}
 	#
-	return $($aut.Content | ConvertFrom-Json).access_token
+	$headerJson  = $header  | ConvertTo-Json -Compress
+	$payloadJson = $payload | ConvertTo-Json -Compress
+	#
+	$headerEncoded = ConvertTo-Base64Url ([Text.Encoding]::UTF8.GetBytes($headerJson))
+	$payloadEncoded = ConvertTo-Base64Url ([Text.Encoding]::UTF8.GetBytes($payloadJson))
+	#
+	$dataToSign = "$headerEncoded.$payloadEncoded"
+	#
+	$signatureEncoded = ConvertTo-Base64Url $([System.Security.Cryptography.X509Certificates.RSACertificateExtensions]::GetRSAPrivateKey($cert).SignData([Text.Encoding]::UTF8.GetBytes($dataToSign), [System.Security.Cryptography.HashAlgorithmName]::SHA256, [System.Security.Cryptography.RSASignaturePadding]::Pkcs1))
+	#
+	$jwt = "$dataToSign.$signatureEncoded"
+	#
+	$body = @{
+		client_id             = $private:clientId
+		scope                 = "https://$script:tenant.sharepoint.com/.default"
+		grant_type            = "client_credentials"
+		client_assertion_type = "urn:ietf:params:oauth:client-assertion-type:jwt-bearer"
+		client_assertion      = $jwt
+	}
+	#
+	[Object] $private:result = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$private:realm/oauth2/v2.0/token" -body $body
+	#
+	Read-Host -Prompt $private:result
+	#
+	return $private:result.access_token
 	#
 }
 #
@@ -2537,21 +2574,8 @@ SAP-DR-Reporting.ps1::main(...): switched to debug mode.
 #
 # -----------------------------------------------------------------------------------------------
 #
-$private:passphrase = {
-	#
-	if ($env:__Waste_Reporting_Key -ne $null) {
-		#
-		return $($env:__Waste_Reporting_Key)
-		#
-	} else {
-		#
-		return $(Read-Host -Prompt 'Please enter password')
-		#
-	}
-}
-#
-[String] $private:act = $(. local:getAccessToken -phrase $(. $private:passphrase))
-#[String] $private:act = $(Get-Content "$env:HOMEDRIVE\$env:HOMEPATH\Desktop\token.txt")
+[String] $private:act = $(. local:getAccessToken)
+#[String] $private:act = $(Get-Content "$env:HOMEDRIVE\$env:HOMEPATH\Downloads\token.txt")
 #
 [String] $local:tmp1 = [System.IO.Path]::GetTempFileName()
 [String] $local:tmp2 = [System.IO.Path]::GetTempFileName()
