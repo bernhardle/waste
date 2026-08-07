@@ -154,8 +154,6 @@ function local:getAccessToken ([String] $Thumbprint) {
 	#
 	[Object] $private:result = Invoke-RestMethod -Method POST -Uri "https://login.microsoftonline.com/$private:realm/oauth2/v2.0/token" -body $body
 	#
-	Read-Host -Prompt $private:result
-	#
 	return $private:result.access_token
 	#
 }
