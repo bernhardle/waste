@@ -30,6 +30,7 @@
 #		2025-12-31: Neues secret mit Gueltigkeit bis 28.02.2027
 #		2026-08-07:	Migriert zu Authentifizierung über X.509 Zertifikat wegen Abschaltung der ACS Secrets
 #					siehe auch https://learn.microsoft.com/de-de/sharepoint/dev/sp-add-ins/retirement-announcement-for-azure-acs
+#		2026-08-10: Token expiration adjusted to 30 minutes
 #	Original:
 #		XML Formulare/Abfallwirtschaft/ps1/SAP-DR-Reporting.ps1
 #	Verweise:
@@ -129,7 +130,7 @@ function local:getAccessToken ([String] $Thumbprint) {
 		sub = $private:clientId
 		jti = $($(New-Guid).ToString())
 		nbf = $([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())
-		exp = $([DateTimeOffset]::UtcNow.AddMinutes(10).ToUnixTimeSeconds())
+		exp = $([DateTimeOffset]::UtcNow.AddMinutes(30).ToUnixTimeSeconds())
 	}
 	#
 	$headerJson  = $header  | ConvertTo-Json -Compress
