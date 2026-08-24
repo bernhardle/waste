@@ -86,7 +86,7 @@ function local:getAccessToken {
 #
 $local:csv | Out-GridView  -Title "$local:mode" -Wait
 #
-[System.Collections.Hashtable] $local:hdr = @{'Authorization'="Bearer $local:act"; 'Accept'='application/json;odata=verbose'; 'Content-Type'='application/json'; 'If-Match'='*'; 'X-RequestDigest'="$(. "$psmodules\Get-SPOFormDigestValue.ps1" -Site $local:sit -AccessToken $act)"}
+[System.Collections.Hashtable] $local:hdr = @{'Authorization'="Bearer $local:act"; 'Accept'='application/json;odata=verbose'; 'Content-Type'='application/json'; 'If-Match'='*'; 'X-RequestDigest'="$(. "$psmodules\Get-SPOFormDigestValue.ps1" -Site $local:sit -AccessToken $local:act)"}
 #
 foreach($pos in 1..$csv.length) {
 
@@ -96,9 +96,9 @@ foreach($pos in 1..$csv.length) {
 	
 	if ($local:mat.length -ge 5) {
 
-		[String] $local:uri = "https://iptrack.sharepoint.com/sites/$local:sit/_api/web/Lists/GetByTitle('$list')/items?`$select=Id,$field&`$filter=Material eq '$local:mat'"
+		[String] $local:uri = "https://iptrack.sharepoint.com/sites/$local:sit/_api/web/Lists/GetByTitle('$local:list')/items?`$select=Id,$field&`$filter=Material eq '$local:mat'"
 		
-		[System.Xml.XmlElement] $local:ime = $(Invoke-RestMethod -Method Get -Headers @{"Authorization"="Bearer $act";"Accept"="application/xml"}  -Uri "$uri")
+		[System.Xml.XmlElement] $local:ime = $(Invoke-RestMethod -Method Get -Headers @{"Authorization"="Bearer $local:act";"Accept"="application/xml"}  -Uri "$uri")
 
 		[Int] $local:idx = $($ime.content.properties.Id[0].'#text')
 		
@@ -145,16 +145,17 @@ foreach($pos in 1..$csv.length) {
 		#
 		if ($local:skip)	{
 			#
-			Write-Host "ERROR: Entry '$entry' already present in list '$field' for material '$mat' - skipping ..."
+			Write-Host -ForegroundColor Red "ERROR: Entry '$entry' already present in list '$field' for material '$mat' - skipping ..."
 			#
 		} else {
 			#
-			Write-Host "PATCH: Material: $mat Feld: $field Wert: $local:json"
+			Write-Host -ForegroundColor Green "PATCH: Material: $mat Feld: $field Wert: $local:json"
 			#
-			Invoke-RestMethod -Method PATCH -Headers $local:hdr -Body $local:json -ContentType 'application/json' -Uri "https://iptrack.sharepoint.com/sites/$local:sit/_api/web/Lists/GetByTitle('$list')/items($local:idx)"
+			Invoke-RestMethod -Method PATCH -Headers $local:hdr -Body $local:json -ContentType 'application/json' -Uri "https://iptrack.sharepoint.com/sites/$local:sit/_api/web/Lists/GetByTitle('$local:list')/items($local:idx)"
 			#
 		}
 	}
 }
-
+#
 return $null
+#
